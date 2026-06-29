@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "digitalpluss-front",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "digitalfront", "run", "dev"],
+      "port": 3000
+    }
+  ]
+}
