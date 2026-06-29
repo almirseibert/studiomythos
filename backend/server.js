@@ -25,12 +25,14 @@ process.on('unhandledRejection', (reason) => {
 
 // 2. CORS + JSON
 app.use(cors({
-    origin: '*',
+    origin: 'https://studiomythos.com.br',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     optionsSuccessStatus: 200,
 }));
-app.options('*', cors());
+app.options('*', cors({
+    origin: 'https://studiomythos.com.br',
+}));
 app.use(express.json());
 
 app.get('/api/status', (req, res) => {
