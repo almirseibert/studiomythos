@@ -23,6 +23,7 @@ import Administracao from './pages/Administracao';
 import AdminCurriculos from './pages/AdminCurriculos';
 import AdminOrcamentos from './pages/AdminOrcamentos';
 import ScriptsVendas from './pages/ScriptsVendas';
+import WhatsApp from './pages/WhatsApp';
 import { isAuthenticated } from './services/auth';
 
 function Protegida({ children }) {
@@ -56,6 +57,7 @@ export default function App() {
         <Route path="/admin" element={<Protegida><Administracao /></Protegida>} />
         <Route path="/admin/curriculos" element={<Protegida><AdminCurriculos /></Protegida>} />
         <Route path="/admin/orcamentos" element={<Protegida><AdminOrcamentos /></Protegida>} />
+        <Route path="/whatsapp" element={<Protegida><WhatsApp /></Protegida>} />
 
         <Route path="*" element={
           <div className="h-screen flex flex-col items-center justify-center bg-obsidian text-white">

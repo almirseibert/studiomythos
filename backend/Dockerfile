@@ -1,20 +1,28 @@
-# Usar a imagem oficial do Node.js (versão 18 LTS baseada no Alpine, que é super leve)
-FROM node:18-alpine
+# node:18-slim (Debian) — necessário para instalar Chromium via apt (Puppeteer/whatsapp-web.js)
+FROM node:18-slim
 
-# Definir o diretório de trabalho dentro do container
+# Instala Chromium e dependências para o Puppeteer funcionar sem sandbox
+RUN apt-get update && apt-get install -y \
+    chromium \
+    fonts-noto-color-emoji \
+    fonts-freefont-ttf \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Aponta Puppeteer para o Chromium do sistema (evita download duplicado)
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
 WORKDIR /app
 
-# Copiar os arquivos de dependências primeiro (isso otimiza o cache do Docker)
 COPY package*.json ./
-
-# Instalar as dependências do projeto
 RUN npm install
 
-# Copiar o restante do código do seu backend para dentro do container
 COPY . .
 
-# Expor a porta que o seu servidor Node.js utiliza (conforme configurado no EasyPanel)
+# Cria o diretório de sessões do WhatsApp (pode ser montado como volume)
+RUN mkdir -p /app/whatsapp-sessions
+
 EXPOSE 3000
 
-# Comando final para iniciar o servidor
 CMD ["node", "server.js"]

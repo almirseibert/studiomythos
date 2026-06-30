@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, DollarSign, FileText,
-  Briefcase, Globe, LogOut, ShieldCheck, Radar, Inbox, Receipt, BookOpen
+  Briefcase, Globe, LogOut, ShieldCheck, Radar, Inbox, Receipt, BookOpen, MessageSquare
 } from 'lucide-react';
 import { LogoMark } from './Logo';
 import { getUser, isAdmin, logout } from '../services/auth';
@@ -60,6 +60,7 @@ export default function Sidebar() {
             <NavItem to="/admin" icon={Inbox} label="Administração" active={pathname === '/admin'} />
             <NavItem to="/admin/curriculos" icon={FileText} label="Currículos" active={is('/admin/curriculos')} />
             <NavItem to="/admin/orcamentos" icon={Receipt} label="Orçamentos" active={is('/admin/orcamentos')} />
+            <NavItem to="/whatsapp" icon={MessageSquare} label="WhatsApp Bot" active={is('/whatsapp')} />
           </>
         )}
       </nav>

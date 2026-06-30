@@ -11,6 +11,7 @@ const financeiroRoutes = require('./routes/financeiroRoutes');
 const relatorioRoutes = require('./routes/relatorioRoutes');
 const publicoRoutes = require('./routes/publicoRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const whatsappRoutes = require('./routes/whatsappRoutes');
 const verificarToken = require('./middlewares/authMiddleware');
 const exigirAdmin = require('./middlewares/adminMiddleware');
 
@@ -254,6 +255,9 @@ app.use('/api/publico', publicoRoutes);
 // Administração (token + admin): visualizar currículos e orçamentos
 app.use('/api/admin', verificarToken, exigirAdmin, adminRoutes);
 
+// WhatsApp Bot (token + admin): gerenciamento do bot com IA Gemini
+app.use('/api/whatsapp', verificarToken, exigirAdmin, whatsappRoutes);
+
 // 5. 404
 app.use((req, res) => {
     res.status(404).json({ success: false, error: 'Endpoint da API não encontrado.' });
@@ -273,4 +277,12 @@ app.listen(PORT, '0.0.0.0', async () => {
     console.log(`======================================================\n`);
     const { garantirColunas } = require('./config/migrate');
     await garantirColunas();
+
+    // Inicia o bot WhatsApp se WHATSAPP_ENABLED=true no .env
+    if (process.env.WHATSAPP_ENABLED === 'true') {
+        const whatsappService = require('./services/whatsappService');
+        whatsappService.initialize().catch(err => {
+            console.error('⚠️  WhatsApp Bot não pôde ser iniciado automaticamente:', err.message);
+        });
+    }
 });
