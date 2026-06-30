@@ -76,10 +76,64 @@ async function garantirColunas() {
       }
     }
 
-    // Tabelas novas (não destrutivo)
+    // Tabelas existentes (não destrutivo)
     await dbPool.query(CRIAR_CURRICULOS);
     await dbPool.query(CRIAR_ORCAMENTOS);
     console.log('🛠️  Migração: tabelas curriculos e orcamentos garantidas.');
+
+    // ── Tabelas do WhatsApp Bot ─────────────────────────────────────────────
+    await dbPool.query(`CREATE TABLE IF NOT EXISTS whatsapp_conversas (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      phone VARCHAR(30) NOT NULL UNIQUE,
+      nome_contato VARCHAR(150),
+      cliente_id INT NULL,
+      modo ENUM('ia_ativa','humano_ativo','aguardando') DEFAULT 'ia_ativa',
+      vendedor_responsavel_id INT NULL,
+      ultima_mensagem_em TIMESTAMP NULL,
+      criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE SET NULL,
+      FOREIGN KEY (vendedor_responsavel_id) REFERENCES usuarios(id) ON DELETE SET NULL
+    )`);
+
+    await dbPool.query(`CREATE TABLE IF NOT EXISTS whatsapp_mensagens (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      conversa_id INT NOT NULL,
+      direcao ENUM('recebida','enviada') NOT NULL,
+      remetente ENUM('cliente','ia','humano') NOT NULL,
+      conteudo TEXT NOT NULL,
+      whatsapp_msg_id VARCHAR(80),
+      criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (conversa_id) REFERENCES whatsapp_conversas(id) ON DELETE CASCADE
+    )`);
+
+    await dbPool.query(`CREATE TABLE IF NOT EXISTS whatsapp_memoria_ia (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      phone VARCHAR(30) NOT NULL,
+      tipo ENUM('fato','preferencia','interesse','objecao','nota') DEFAULT 'nota',
+      conteudo TEXT NOT NULL,
+      criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_phone (phone)
+    )`);
+
+    await dbPool.query(`CREATE TABLE IF NOT EXISTS whatsapp_agendamentos (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      phone VARCHAR(30) NOT NULL,
+      cliente_id INT NULL,
+      titulo VARCHAR(200) NOT NULL,
+      descricao TEXT,
+      data_hora DATETIME NOT NULL,
+      status ENUM('agendado','confirmado','realizado','cancelado') DEFAULT 'agendado',
+      vendedor_id INT NULL,
+      criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE SET NULL,
+      FOREIGN KEY (vendedor_id) REFERENCES usuarios(id) ON DELETE SET NULL,
+      INDEX idx_phone (phone),
+      INDEX idx_data (data_hora)
+    )`);
+
+    console.log('🛠️  Migração: tabelas WhatsApp Bot garantidas.');
   } catch (err) {
     // Sem banco acessível em dev a migração apenas é ignorada.
     console.error('⚠️  Migração de schema não aplicada:', err.code || err.message);

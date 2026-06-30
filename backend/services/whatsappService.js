@@ -1,0 +1,194 @@
+const { Client, LocalAuth } = require('whatsapp-web.js');
+const QRCode = require('qrcode');
+const geminiService = require('./geminiService');
+const conversaService = require('./conversaService');
+
+let client = null;
+let qrData = null;
+let qrTimestamp = null;
+let botStatus = 'desconectado';
+let isInitializing = false;
+
+// IDs de mensagens enviadas pelo bot (para distinguir de mensagens enviadas por humanos no dispositivo)
+const botSentIds = new Set();
+const MAX_BOT_IDS = 2000;
+
+// ─── Estado público ────────────────────────────────────────────────────────
+
+function getStatus() {
+  return { status: botStatus, ready: botStatus === 'pronto', qrAvailable: !!qrData, qrTimestamp };
+}
+
+async function getQRImage() {
+  if (!qrData) return null;
+  return QRCode.toDataURL(qrData);
+}
+
+// ─── Inicialização ─────────────────────────────────────────────────────────
+
+async function initialize() {
+  if (isInitializing || botStatus === 'pronto') return;
+  isInitializing = true;
+  botStatus = 'inicializando';
+  console.log('\n📱 Iniciando WhatsApp Bot Studio Mythos...');
+
+  try {
+    const puppeteerOpts = {
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage',
+             '--disable-accelerated-2d-canvas', '--no-first-run', '--no-zygote', '--disable-gpu'],
+    };
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      puppeteerOpts.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    }
+
+    client = new Client({
+      authStrategy: new LocalAuth({ dataPath: './whatsapp-sessions' }),
+      puppeteer: puppeteerOpts,
+    });
+
+    client.on('qr', (qr) => {
+      qrData = qr; qrTimestamp = new Date();
+      botStatus = 'aguardando_qr'; isInitializing = false;
+      console.log('📱 QR Code gerado — acesse o painel WhatsApp para escanear');
+      try { require('qrcode-terminal').generate(qr, { small: true }); } catch (_) {}
+    });
+
+    client.on('authenticated', () => {
+      console.log('✅ WhatsApp: autenticado!');
+      qrData = null; botStatus = 'autenticado';
+    });
+
+    client.on('auth_failure', (msg) => {
+      console.error('❌ WhatsApp: falha na autenticação —', msg);
+      botStatus = 'erro_auth'; isInitializing = false;
+    });
+
+    client.on('ready', () => {
+      console.log('✅ WhatsApp Bot Mythos: pronto para atender!\n');
+      botStatus = 'pronto';
+    });
+
+    client.on('disconnected', (reason) => {
+      console.warn('⚠️  WhatsApp: desconectado —', reason);
+      botStatus = 'desconectado'; isInitializing = false; client = null;
+    });
+
+    // Mensagens recebidas de outros contatos
+    client.on('message', onIncoming);
+
+    // Detecta mensagens enviadas pelo humano diretamente no dispositivo WhatsApp
+    client.on('message_create', onMessageCreate);
+
+    await client.initialize();
+  } catch (err) {
+    console.error('❌ Erro ao inicializar WhatsApp:', err.message);
+    botStatus = 'erro'; isInitializing = false; client = null;
+  }
+}
+
+// ─── Mensagem RECEBIDA (de contato externo) ────────────────────────────────
+
+async function onIncoming(msg) {
+  if (msg.fromMe) return;
+  if (msg.from.endsWith('@g.us')) return; // ignora grupos
+
+  const phone = msg.from;
+  const text = (msg.body || '').trim();
+  if (!text) return;
+
+  console.log(`📩 [WA] ${phone}: ${text.substring(0, 80)}`);
+
+  try {
+    // Persiste a mensagem do cliente
+    await conversaService.salvarMensagem(phone, 'recebida', 'cliente', text, msg.id.id);
+
+    // Verifica se está em modo humano
+    const conversa = await conversaService.obterOuCriarConversa(phone);
+    if (conversa.modo === 'humano_ativo') {
+      console.log(`👤 [WA] ${phone} em atendimento humano — IA silenciada`);
+      return;
+    }
+
+    // Processa com IA Gemini
+    const resultado = await geminiService.processMessage(phone, text);
+    if (!resultado) return;
+
+    // Delay humanizado: pausa + "digitando..."
+    await sleep(1200 + Math.random() * 1500);
+    const chat = await msg.getChat();
+    await chat.sendStateTyping();
+    await sleep(Math.min(resultado.text.length * 18, 4500));
+
+    // Envia resposta
+    const sentMsg = await msg.reply(resultado.text);
+    botSentIds.add(sentMsg.id.id);
+    if (botSentIds.size > MAX_BOT_IDS) {
+      const [first] = botSentIds; botSentIds.delete(first);
+    }
+
+    await conversaService.salvarMensagem(phone, 'enviada', 'ia', resultado.text, sentMsg.id.id);
+
+    if (resultado.handover) {
+      console.log(`🔔 [WA] Handover para humano — ${phone}`);
+    }
+  } catch (err) {
+    console.error('[WA] Erro ao processar mensagem:', err.message);
+  }
+}
+
+// ─── Detecta mensagem enviada pelo HUMANO no dispositivo WhatsApp ──────────
+
+async function onMessageCreate(msg) {
+  if (!msg.fromMe) return;
+  if (msg.from.endsWith('@g.us')) return;
+
+  // Se o ID está no set, foi enviado pelo bot — ignorar
+  if (botSentIds.has(msg.id.id)) return;
+
+  // Foi digitado por um humano no dispositivo — assume o atendimento
+  const phone = msg.to; // destinatário da mensagem enviada
+  const text = (msg.body || '').trim();
+  if (!text) return;
+
+  console.log(`👤 [WA] Humano enviou mensagem para ${phone}: ${text.substring(0, 60)}`);
+
+  try {
+    await conversaService.salvarMensagem(phone, 'enviada', 'humano', text, msg.id.id);
+    await conversaService.atualizarModo(phone, 'humano_ativo');
+    // Limpa cache do Gemini para quando a IA retornar
+    geminiService.limparCache(phone);
+  } catch (err) {
+    console.error('[WA] Erro ao registrar mensagem humana:', err.message);
+  }
+}
+
+// ─── Envio via API (vendedor pelo painel) ──────────────────────────────────
+
+async function sendMessage(phone, text, vendedorId = null) {
+  if (!client || botStatus !== 'pronto') throw new Error('WhatsApp não está conectado');
+  const chatId = phone.includes('@') ? phone : `${phone.replace(/\D/g, '')}@c.us`;
+  const sentMsg = await client.sendMessage(chatId, text);
+  botSentIds.add(sentMsg.id.id);
+  if (botSentIds.size > MAX_BOT_IDS) { const [f] = botSentIds; botSentIds.delete(f); }
+
+  // Salva no banco como mensagem humana
+  await conversaService.salvarMensagem(chatId, 'enviada', 'humano', text, sentMsg.id.id);
+  if (vendedorId) await conversaService.atualizarModo(chatId, 'humano_ativo', vendedorId);
+
+  return sentMsg;
+}
+
+// ─── Restart ───────────────────────────────────────────────────────────────
+
+async function restart() {
+  if (client) { try { await client.destroy(); } catch (_) {} client = null; }
+  botStatus = 'desconectado'; isInitializing = false; qrData = null;
+  botSentIds.clear();
+  await sleep(1500);
+  await initialize();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+module.exports = { initialize, getStatus, getQRImage, sendMessage, restart };
