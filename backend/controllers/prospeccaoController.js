@@ -50,11 +50,19 @@ const prospeccaoController = {
   },
 
   // Importa empresas selecionadas como leads no funil, atribuídas a um vendedor
+  // O frontend envia em lotes pequenos (BATCH_SIZE=2) — o backend processa cada lote com segurança
   importar: async (req, res) => {
     const { empresas, vendedor_id } = req.body;
     if (!Array.isArray(empresas) || empresas.length === 0) {
       return res.status(400).json({ success: false, error: 'Nenhuma empresa selecionada.' });
     }
+    // Guard: rejeita lotes excessivamente grandes para proteger o servidor
+    if (empresas.length > 20) {
+      return res.status(400).json({ success: false, error: 'Máximo de 20 empresas por lote. O frontend deve enviar em partes.' });
+    }
+
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
     const conn = await dbPool.getConnection();
     try {
       // De-duplicação por osm_ref (já capturados antes)
@@ -77,12 +85,13 @@ const prospeccaoController = {
         if (Array.isArray(e.redes_sociais) && e.redes_sociais.length) {
           detalhes.push({ label: 'Redes sociais', valor: e.redes_sociais.join(', ') });
         }
-        // Para leads do Google Maps, busca avaliações/reviews para anexar
+        // Para leads do Google Maps, busca detalhes extras com delay para não estourar a cota
         if (typeof e.osm_ref === 'string' && e.osm_ref.startsWith('google/')) {
+          await sleep(250); // respeita rate limit da API do Google
           try {
             const reviews = await google.detalhesEmpresa(e.osm_ref);
             if (Array.isArray(reviews)) detalhes.push(...reviews);
-          } catch (err) { /* enriquecimento é best-effort */ }
+          } catch { /* enriquecimento é best-effort */ }
         }
         const contatos = [];
         if (e.telefone || e.email) {

@@ -35,6 +35,10 @@ export default function Prospeccao() {
   const [vendedores, setVendedores] = useState([]);
   const [vendedorId, setVendedorId] = useState('');
   const [importando, setImportando] = useState(false);
+  const [progresso, setProgresso] = useState(null); // {atual, total, inseridos, duplicados}
+
+  const BATCH_SIZE = 2;    // empresas por lote
+  const BATCH_DELAY = 700; // ms de pausa entre lotes
 
   const [googleDisponivel, setGoogleDisponivel] = useState(false);
   const [fonteGoogle, setFonteGoogle] = useState(false);
@@ -118,17 +122,53 @@ export default function Prospeccao() {
   const importar = async () => {
     if (selecionados.length === 0) return showToast('Selecione empresas para importar.', 'info');
     const empresas = resultado.empresas.filter(e => selecionados.includes(e.osm_ref));
+
+    // Divide em lotes de BATCH_SIZE para evitar timeout com listas grandes
+    const lotes = [];
+    for (let i = 0; i < empresas.length; i += BATCH_SIZE) {
+      lotes.push(empresas.slice(i, i + BATCH_SIZE));
+    }
+
     setImportando(true);
+    setProgresso({ atual: 0, total: empresas.length, inseridos: 0, duplicados: 0 });
+
+    let totalInseridos = 0;
+    let totalDuplicados = 0;
+
     try {
-      const r = await api.post('/prospeccao/importar', { empresas, vendedor_id: vendedorId || null });
-      if (r.data.success) {
-        showToast(`${r.data.inseridos} leads importados${r.data.duplicados ? ` · ${r.data.duplicados} já existiam` : ''}!`, 'success');
-        setSelecionados([]);
+      for (let i = 0; i < lotes.length; i++) {
+        const r = await api.post('/prospeccao/importar', {
+          empresas: lotes[i],
+          vendedor_id: vendedorId || null,
+        });
+        if (r.data.success) {
+          totalInseridos += r.data.inseridos || 0;
+          totalDuplicados += r.data.duplicados || 0;
+          setProgresso({
+            atual: Math.min((i + 1) * BATCH_SIZE, empresas.length),
+            total: empresas.length,
+            inseridos: totalInseridos,
+            duplicados: totalDuplicados,
+          });
+        }
+        // Pausa entre lotes (exceto após o último)
+        if (i < lotes.length - 1) {
+          await new Promise(res => setTimeout(res, BATCH_DELAY));
+        }
       }
+      const msg = `${totalInseridos} leads importados${totalDuplicados ? ` · ${totalDuplicados} já existiam` : ''}!`;
+      showToast(msg, 'success');
+      setSelecionados([]);
     } catch {
-      showToast('Erro ao importar leads.', 'error');
+      showToast(
+        totalInseridos > 0
+          ? `Parcialmente importado: ${totalInseridos} salvos antes do erro.`
+          : 'Erro ao importar leads.',
+        totalInseridos > 0 ? 'info' : 'error'
+      );
     } finally {
       setImportando(false);
+      setProgresso(null);
     }
   };
 
@@ -331,10 +371,22 @@ export default function Prospeccao() {
                   {vendedores.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
                 </select>
                 <button onClick={importar} disabled={importando || selecionados.length === 0}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 transition">
-                  {importando ? <Loader2 className="animate-spin" size={18} /> : <Download size={18} />}
-                  Importar {selecionados.length > 0 ? `(${selecionados.length})` : ''} para o funil
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 transition text-sm">
+                  {importando
+                    ? <Loader2 className="animate-spin shrink-0" size={16} />
+                    : <Download size={16} />}
+                  {importando && progresso
+                    ? `Importando ${progresso.atual}/${progresso.total} · ${progresso.inseridos} salvos`
+                    : `Importar ${selecionados.length > 0 ? `(${selecionados.length})` : ''} para o funil`}
                 </button>
+                {importando && progresso && (
+                  <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${Math.round((progresso.atual / progresso.total) * 100)}%` }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}
