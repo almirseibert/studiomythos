@@ -1,0 +1,19 @@
+# Variáveis de ambiente (contêm credenciais)
+.env
+.env.*
+!.env.example
+
+# Dependências
+node_modules/
+
+# Build
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db

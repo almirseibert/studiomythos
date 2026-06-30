@@ -1,0 +1,22 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+
+# Cache do Vite
+.vite/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Variáveis de ambiente locais (.env de produção é versionado conforme o fluxo atual)
+*.local
+.env.local
+.env.*.local
+
+# Sistema
+.DS_Store
+Thumbs.db

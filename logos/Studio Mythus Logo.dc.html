@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Jost:wght@300;400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+  </style>
+</helmet>
+
+<div style="--gold: {{ gold }}; --gold-2: #F2D38C; --violet-deep: {{ violetDeep }}; --violet: #5B3C9E; --violet-2: #8E72D6; min-height: 100%; background: #ECEAF2; font-family: 'Jost', system-ui, sans-serif; padding: 56px 48px 64px; color: #1A1130;">
+
+  <!-- ===== HEADER ===== -->
+  <div style="max-width: 1180px; margin: 0 auto 40px; display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; flex-wrap: wrap;">
+    <div>
+      <div style="font-size: 11px; font-weight: 500; letter-spacing: 0.34em; text-transform: uppercase; color: var(--gold,#D8A84E); margin-bottom: 14px;">Identidade Visual</div>
+      <div style="font-family: 'Cinzel', serif; font-weight: 600; font-size: 46px; letter-spacing: 0.04em; line-height: 1; color: #1A1130;">Studio Mythos</div>
+      <div style="margin-top: 12px; font-size: 15px; color: #6B6480; letter-spacing: 0.01em;">Software House &amp; Agência Digital · seis direções de logotipo</div>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <div style="width: 34px; height: 34px; border-radius: 8px; background: var(--violet-deep,#1A1130);"></div>
+      <div style="width: 34px; height: 34px; border-radius: 8px; background: var(--violet,#5B3C9E);"></div>
+      <div style="width: 34px; height: 34px; border-radius: 8px; background: var(--violet-2,#8E72D6);"></div>
+      <div style="width: 34px; height: 34px; border-radius: 8px; background: var(--gold,#D8A84E);"></div>
+      <div style="width: 34px; height: 34px; border-radius: 8px; background: #F2D38C;"></div>
+    </div>
+  </div>
+
+  <!-- ===== GRID ===== -->
+  <div style="max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 26px;">
+
+    <!-- ====== 01 CONSTELAÇÃO M ====== -->
+    <div style="background: #fff; border: 1px solid #E3DEED; border-radius: 22px; box-shadow: 0 1px 3px rgba(26,17,48,0.05); overflow: hidden;">
+      <div style="position: relative; padding: 46px 32px; min-height: 196px; display: flex; align-items: center; justify-content: center; background: radial-gradient(120% 130% at 50% 8%, #2C1C52 0%, var(--violet-deep,#1A1130) 64%);">
+        <span style="position: absolute; top: 18px; left: 22px; font-family: 'Jost'; font-size: 12px; letter-spacing: 0.18em; color: rgba(255,255,255,0.35);">01</span>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+          <svg viewBox="0 0 120 120" width="74" height="74" aria-hidden="true">
+            <polyline points="22,94 34,28 60,64 86,28 98,94" fill="none" stroke="var(--gold,#D8A84E)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <g fill="var(--gold,#D8A84E)">
+              <circle cx="22" cy="94" r="4.4"/><circle cx="34" cy="28" r="4.4"/><circle cx="60" cy="64" r="3.8"/><circle cx="86" cy="28" r="4.4"/><circle cx="98" cy="94" r="4.4"/>
+            </g>
+            <path d="M60 6 L62.6 17 L73 19.5 L62.6 22 L60 33 L57.4 22 L47 19.5 L57.4 17 Z" fill="#F2D38C"/>
+            <circle cx="15" cy="48" r="1.8" fill="var(--gold,#D8A84E)" opacity="0.65"/>
+            <circle cx="105" cy="55" r="1.8" fill="var(--gold,#D8A84E)" opacity="0.65"/>
+          </svg>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+            <div style="font-family: 'Jost'; font-weight: 400; font-size: 11px; letter-spacing: 0.46em; color: rgba(255,255,255,0.55); padding-left: 0.46em;">STUDIO</div>
+            <div style="font-family: 'Cinzel', serif; font-weight: 600; font-size: 33px; letter-spacing: 0.1em; line-height: 1; color: var(--gold,#D8A84E); padding-left: 0.1em;">MYTHOS</div>
+            <sc-if value="{{ showTagline }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top: 4px; font-family: 'Jost'; font-weight: 300; font-size: 8.5px; letter-spacing: 0.28em; color: rgba(255,255,255,0.4); padding-left: 0.28em;">SOFTWARE HOUSE &amp; AGÊNCIA DIGITAL</div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 18px 22px; display: flex; align-items: center; gap: 16px;">
+        <div style="flex: none; width: 46px; height: 46px; border-radius: 12px; background: var(--violet-deep,#1A1130); display: flex; align-items: center; justify-content: center;">
+          <svg viewBox="0 0 120 120" width="28" height="28" aria-hidden="true">
+            <polyline points="22,94 34,28 60,64 86,28 98,94" fill="none" stroke="var(--gold,#D8A84E)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <g fill="var(--gold,#D8A84E)"><circle cx="22" cy="94" r="5"/><circle cx="34" cy="28" r="5"/><circle cx="60" cy="64" r="4.4"/><circle cx="86" cy="28" r="5"/><circle cx="98" cy="94" r="5"/></g>
+          </svg>
+        </div>
+        <div>
+          <div style="font-weight: 500; font-size: 14px; color: #1A1130;">Constelação M</div>
+          <div style="font-size: 12px; color: #837C95; margin-top: 2px;">Monograma em constelação. Tecnologia + mito, traço fino premium.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 02 FÊNIX ====== -->
+    <div style="background: #fff; border: 1px solid #E3DEED; border-radius: 22px; box-shadow: 0 1px 3px rgba(26,17,48,0.05); overflow: hidden;">
+      <div style="position: relative; padding: 46px 32px; min-height: 196px; display: flex; align-items: center; justify-content: center; background: radial-gradient(120% 130% at 50% 8%, #2C1C52 0%, var(--violet-deep,#1A1130) 64%);">
+        <span style="position: absolute; top: 18px; left: 22px; font-family: 'Jost'; font-size: 12px; letter-spacing: 0.18em; color: rgba(255,255,255,0.35);">02</span>
+        <div style="display: flex; align-items: center; gap: 22px;">
+          <svg viewBox="0 0 120 120" width="76" height="76" aria-hidden="true">
+            <defs><linearGradient id="ph2" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#B6863A"/><stop offset="1" stop-color="#F4D589"/></linearGradient></defs>
+            <g fill="url(#ph2)">
+              <path d="M60 60 C 51 47 41 33 28 16 C 33 31 35 43 32 56 C 39 51 49 53 58 57 Z"/>
+              <path d="M60 60 C 69 47 79 33 92 16 C 87 31 85 43 88 56 C 81 51 71 53 62 57 Z"/>
+              <path d="M60 50 L56.5 60 L63.5 60 Z"/>
+              <path d="M60 60 C 64 74 63 90 60 104 C 57 90 56 74 60 60 Z"/>
+            </g>
+          </svg>
+          <div style="width: 1px; height: 56px; background: rgba(216,168,78,0.4);"></div>
+          <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 5px;">
+            <div style="font-family: 'Jost'; font-weight: 400; font-size: 11px; letter-spacing: 0.46em; color: rgba(255,255,255,0.55);">STUDIO</div>
+            <div style="font-family: 'Cinzel', serif; font-weight: 600; font-size: 31px; letter-spacing: 0.08em; line-height: 1; color: var(--gold,#D8A84E);">MYTHOS</div>
+            <sc-if value="{{ showTagline }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top: 3px; font-family: 'Jost'; font-weight: 300; font-size: 8.5px; letter-spacing: 0.2em; color: rgba(255,255,255,0.4);">SOFTWARE HOUSE &amp; AGÊNCIA DIGITAL</div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 18px 22px; display: flex; align-items: center; gap: 16px;">
+        <div style="flex: none; width: 46px; height: 46px; border-radius: 12px; background: var(--violet-deep,#1A1130); display: flex; align-items: center; justify-content: center;">
+          <svg viewBox="0 0 120 120" width="30" height="30" aria-hidden="true">
+            <g fill="url(#ph2)">
+              <path d="M60 60 C 51 47 41 33 28 16 C 33 31 35 43 32 56 C 39 51 49 53 58 57 Z"/>
+              <path d="M60 60 C 69 47 79 33 92 16 C 87 31 85 43 88 56 C 81 51 71 53 62 57 Z"/>
+              <path d="M60 60 C 64 74 63 90 60 104 C 57 90 56 74 60 60 Z"/>
+            </g>
+          </svg>
+        </div>
+        <div>
+          <div style="font-weight: 500; font-size: 14px; color: #1A1130;">Fênix Ascendente</div>
+          <div style="font-size: 12px; color: #837C95; margin-top: 2px;">Fênix geométrica em ouro. Renascimento, energia e crescimento.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 03 SELO DO GRIFO ====== -->
+    <div style="background: #fff; border: 1px solid #E3DEED; border-radius: 22px; box-shadow: 0 1px 3px rgba(26,17,48,0.05); overflow: hidden;">
+      <div style="position: relative; padding: 46px 32px; min-height: 196px; display: flex; align-items: center; justify-content: center; background: radial-gradient(120% 130% at 50% 8%, #2C1C52 0%, var(--violet-deep,#1A1130) 64%);">
+        <span style="position: absolute; top: 18px; left: 22px; font-family: 'Jost'; font-size: 12px; letter-spacing: 0.18em; color: rgba(255,255,255,0.35);">03</span>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+          <svg viewBox="0 0 120 120" width="78" height="78" aria-hidden="true">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--gold,#D8A84E)" stroke-width="2"/>
+            <circle cx="60" cy="60" r="43" fill="none" stroke="var(--gold,#D8A84E)" stroke-width="1" opacity="0.45" stroke-dasharray="1.5 4"/>
+            <g stroke="var(--gold,#D8A84E)" stroke-width="2.3" fill="none" stroke-linecap="round">
+              <path d="M52 56 C 41 50 32 52 24 46"/><path d="M52 62 C 43 58 35 60 28 55"/><path d="M52 68 C 45 65 39 67 33 63"/>
+              <path d="M68 56 C 79 50 88 52 96 46"/><path d="M68 62 C 77 58 85 60 92 55"/><path d="M68 68 C 75 65 81 67 87 63"/>
+            </g>
+            <path d="M60 36 L63 48 L75 50.5 L63 53 L60 65 L57 53 L45 50.5 L57 48 Z" fill="var(--gold,#D8A84E)"/>
+            <g fill="var(--gold,#D8A84E)"><circle cx="49" cy="82" r="1.6"/><circle cx="60" cy="84" r="1.9"/><circle cx="71" cy="82" r="1.6"/></g>
+          </svg>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+            <div style="font-family: 'Cinzel', serif; font-weight: 600; font-size: 30px; letter-spacing: 0.16em; line-height: 1; color: var(--gold,#D8A84E); padding-left: 0.16em;">MYTHOS</div>
+            <sc-if value="{{ showTagline }}" hint-placeholder-val="{{ true }}">
+              <div style="font-family: 'Jost'; font-weight: 300; font-size: 9px; letter-spacing: 0.3em; color: rgba(255,255,255,0.45); padding-left: 0.3em;">STUDIO · AGÊNCIA DIGITAL</div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 18px 22px; display: flex; align-items: center; gap: 16px;">
+        <div style="flex: none; width: 46px; height: 46px; border-radius: 12px; background: var(--violet-deep,#1A1130); display: flex; align-items: center; justify-content: center;">
+          <svg viewBox="0 0 120 120" width="32" height="32" aria-hidden="true">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--gold,#D8A84E)" stroke-width="2.6"/>
+            <g stroke="var(--gold,#D8A84E)" stroke-width="3" fill="none" stroke-linecap="round">
+              <path d="M52 58 C 41 52 32 54 24 48"/><path d="M68 58 C 79 52 88 54 96 48"/>
+            </g>
+            <path d="M60 38 L63 50 L75 52.5 L63 55 L60 67 L57 55 L45 52.5 L57 50 Z" fill="var(--gold,#D8A84E)"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-weight: 500; font-size: 14px; color: #1A1130;">Selo do Grifo</div>
+          <div style="font-size: 12px; color: #837C95; margin-top: 2px;">Emblema heráldico com asas e estrela-guia. Guardião mítico.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 04 PÓRTICO ====== -->
+    <div style="background: #fff; border: 1px solid #E3DEED; border-radius: 22px; box-shadow: 0 1px 3px rgba(26,17,48,0.05); overflow: hidden;">
+      <div style="position: relative; padding: 46px 32px; min-height: 196px; display: flex; align-items: center; justify-content: center; background: radial-gradient(120% 130% at 50% 8%, #2C1C52 0%, var(--violet-deep,#1A1130) 64%);">
+        <span style="position: absolute; top: 18px; left: 22px; font-family: 'Jost'; font-size: 12px; letter-spacing: 0.18em; color: rgba(255,255,255,0.35);">04</span>
+        <div style="display: flex; align-items: center; gap: 22px;">
+          <svg viewBox="0 0 120 120" width="72" height="72" aria-hidden="true">
+            <path d="M28 98 L28 52 A32 32 0 0 1 92 52 L92 98" fill="none" stroke="var(--gold,#D8A84E)" stroke-width="2.6" stroke-linecap="round"/>
+            <line x1="20" y1="98" x2="100" y2="98" stroke="var(--gold,#D8A84E)" stroke-width="2.6" stroke-linecap="round"/>
+            <path d="M60 12 L62 21 L71 23 L62 25 L60 34 L58 25 L49 23 L58 21 Z" fill="#F2D38C"/>
+            <polyline points="44,86 44,54 60,72 76,54 76,86" fill="none" stroke="var(--gold,#D8A84E)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div style="width: 1px; height: 56px; background: rgba(216,168,78,0.4);"></div>
+          <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 5px;">
+            <div style="font-family: 'Jost'; font-weight: 400; font-size: 11px; letter-spacing: 0.46em; color: rgba(255,255,255,0.55);">STUDIO</div>
+            <div style="font-family: 'Cinzel', serif; font-weight: 700; font-size: 31px; letter-spacing: 0.06em; line-height: 1; color: var(--gold,#D8A84E);">MYTHOS</div>
+            <sc-if value="{{ showTagline }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top: 3px; font-family: 'Jost'; font-weight: 300; font-size: 8.5px; letter-spacing: 0.2em; color: rgba(255,255,255,0.4);">SOFTWARE HOUSE &amp; AGÊNCIA DIGITAL</div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 18px 22px; display: flex; align-items: center; gap: 16px;">
+        <div style="flex: none; width: 46px; height: 46px; border-radius: 12px; background: var(--violet-deep,#1A1130); display: flex; align-items: center; justify-content: center;">
+          <svg viewBox="0 0 120 120" width="30" height="30" aria-hidden="true">
+            <path d="M30 96 L30 52 A30 30 0 0 1 90 52 L90 96" fill="none" stroke="var(--gold,#D8A84E)" stroke-width="3" stroke-linecap="round"/>
+            <polyline points="44,86 44,56 60,72 76,56 76,86" fill="none" stroke="var(--gold,#D8A84E)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-weight: 500; font-size: 14px; color: #1A1130;">Pórtico</div>
+          <div style="font-size: 12px; color: #837C95; margin-top: 2px;">Arco clássico com monograma M. Solidez, legado e confiança.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 05 ESTRELA-GUIA ====== -->
+    <div style="background: #fff; border: 1px solid #E3DEED; border-radius: 22px; box-shadow: 0 1px 3px rgba(26,17,48,0.05); overflow: hidden;">
+      <div style="position: relative; padding: 46px 32px; min-height: 196px; display: flex; align-items: center; justify-content: center; background: radial-gradient(120% 130% at 50% 8%, #2C1C52 0%, var(--violet-deep,#1A1130) 64%);">
+        <span style="position: absolute; top: 18px; left: 22px; font-family: 'Jost'; font-size: 12px; letter-spacing: 0.18em; color: rgba(255,255,255,0.35);">05</span>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+          <svg viewBox="0 0 120 120" width="70" height="70" aria-hidden="true">
+            <defs><linearGradient id="sp5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4D589"/><stop offset="1" stop-color="#C68F37"/></linearGradient></defs>
+            <path d="M60 16 C 61.5 42 64 50 70 56 C 76 62 84 64.5 104 60 C 84 61.5 76 64 70 70 C 64 76 61.5 84 60 104 C 58.5 84 56 76 50 70 C 44 64 36 61.5 16 60 C 36 58.5 44 56 50 50 C 56 44 58.5 36 60 16 Z" fill="url(#sp5)"/>
+            <path d="M96 24 C 96.6 33 97.6 35 99.4 36.8 C 101 38.5 103 39 109 38 C 103 38.6 101 39.4 99.4 41 C 97.6 43 96.6 45 96 52 C 95.4 45 94.4 43 92.6 41 C 91 39.4 89 38.6 83 38 C 89 37 91 36.5 92.6 35 C 94.4 33 95.4 31 96 24 Z" fill="#F2D38C" opacity="0.85"/>
+          </svg>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 30px; letter-spacing: 0.18em; line-height: 1; color: #fff; padding-left: 0.18em;">MYTHOS</div>
+            <sc-if value="{{ showTagline }}" hint-placeholder-val="{{ true }}">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 9px; letter-spacing: 0.34em; color: var(--gold,#D8A84E); padding-left: 0.34em;">STUDIO · SOFTWARE &amp; PERFORMANCE</div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 18px 22px; display: flex; align-items: center; gap: 16px;">
+        <div style="flex: none; width: 46px; height: 46px; border-radius: 12px; background: var(--violet-deep,#1A1130); display: flex; align-items: center; justify-content: center;">
+          <svg viewBox="0 0 120 120" width="30" height="30" aria-hidden="true">
+            <path d="M60 16 C 61.5 42 64 50 70 56 C 76 62 84 64.5 104 60 C 84 61.5 76 64 70 70 C 64 76 61.5 84 60 104 C 58.5 84 56 76 50 70 C 44 64 36 61.5 16 60 C 36 58.5 44 56 50 50 C 56 44 58.5 36 60 16 Z" fill="url(#sp5)"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-weight: 500; font-size: 14px; color: #1A1130;">Estrela-Guia</div>
+          <div style="font-size: 12px; color: #837C95; margin-top: 2px;">Estrela de quatro pontas. Tech minimalista, direção e brilho.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 06 M ASCENDENTE ====== -->
+    <div style="background: #fff; border: 1px solid #E3DEED; border-radius: 22px; box-shadow: 0 1px 3px rgba(26,17,48,0.05); overflow: hidden;">
+      <div style="position: relative; padding: 46px 32px; min-height: 196px; display: flex; align-items: center; justify-content: center; background: radial-gradient(120% 130% at 50% 8%, #2C1C52 0%, var(--violet-deep,#1A1130) 64%);">
+        <span style="position: absolute; top: 18px; left: 22px; font-family: 'Jost'; font-size: 12px; letter-spacing: 0.18em; color: rgba(255,255,255,0.35);">06</span>
+        <div style="display: flex; align-items: center; gap: 22px;">
+          <svg viewBox="0 0 120 120" width="72" height="72" aria-hidden="true">
+            <defs><linearGradient id="gr6" x1="0" y1="1" x2="0.3" y2="0"><stop offset="0" stop-color="#8E72D6"/><stop offset="0.55" stop-color="#B98FB0"/><stop offset="1" stop-color="#F4D589"/></linearGradient></defs>
+            <polyline points="24,94 24,38 60,72 96,38 96,94" fill="none" stroke="url(#gr6)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M60 28 L60 8 M52 16 L60 8 L68 16" fill="none" stroke="#F4D589" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div style="width: 1px; height: 56px; background: rgba(216,168,78,0.4);"></div>
+          <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 31px; letter-spacing: 0.02em; line-height: 1; color: #fff;">Mythos</div>
+            <sc-if value="{{ showTagline }}" hint-placeholder-val="{{ true }}">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 400; font-size: 9px; letter-spacing: 0.22em; color: var(--gold,#D8A84E);">STUDIO · PRODUTOS DIGITAIS</div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 18px 22px; display: flex; align-items: center; gap: 16px;">
+        <div style="flex: none; width: 46px; height: 46px; border-radius: 12px; background: var(--violet-deep,#1A1130); display: flex; align-items: center; justify-content: center;">
+          <svg viewBox="0 0 120 120" width="30" height="30" aria-hidden="true">
+            <polyline points="24,94 24,40 60,72 96,40 96,94" fill="none" stroke="url(#gr6)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-weight: 500; font-size: 14px; color: #1A1130;">M Ascendente</div>
+          <div style="font-size: 12px; color: #837C95; margin-top: 2px;">Monograma em gradiente violeta → ouro. Movimento e resultado.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== FOOTER: PALETA + TIPO ===== -->
+  <div style="max-width: 1180px; margin: 36px auto 0; display: grid; grid-template-columns: 1.3fr 1fr; gap: 26px;">
+    <div style="background: #fff; border: 1px solid #E3DEED; border-radius: 22px; padding: 24px 26px;">
+      <div style="font-size: 10px; font-weight: 500; letter-spacing: 0.26em; text-transform: uppercase; color: #9A93AC; margin-bottom: 16px;">Paleta</div>
+      <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+        <div style="text-align: center;"><div style="width: 56px; height: 56px; border-radius: 12px; background: var(--violet-deep,#1A1130);"></div><div style="font-family: 'Space Grotesk'; font-size: 10px; color: #837C95; margin-top: 7px;">#1A1130</div></div>
+        <div style="text-align: center;"><div style="width: 56px; height: 56px; border-radius: 12px; background: var(--violet,#5B3C9E);"></div><div style="font-family: 'Space Grotesk'; font-size: 10px; color: #837C95; margin-top: 7px;">#5B3C9E</div></div>
+        <div style="text-align: center;"><div style="width: 56px; height: 56px; border-radius: 12px; background: var(--violet-2,#8E72D6);"></div><div style="font-family: 'Space Grotesk'; font-size: 10px; color: #837C95; margin-top: 7px;">#8E72D6</div></div>
+        <div style="text-align: center;"><div style="width: 56px; height: 56px; border-radius: 12px; background: var(--gold,#D8A84E);"></div><div style="font-family: 'Space Grotesk'; font-size: 10px; color: #837C95; margin-top: 7px;">#D8A84E</div></div>
+        <div style="text-align: center;"><div style="width: 56px; height: 56px; border-radius: 12px; background: #F2D38C; border: 1px solid #EADFc7;"></div><div style="font-family: 'Space Grotesk'; font-size: 10px; color: #837C95; margin-top: 7px;">#F2D38C</div></div>
+      </div>
+    </div>
+    <div style="background: #fff; border: 1px solid #E3DEED; border-radius: 22px; padding: 24px 26px;">
+      <div style="font-size: 10px; font-weight: 500; letter-spacing: 0.26em; text-transform: uppercase; color: #9A93AC; margin-bottom: 14px;">Tipografia</div>
+      <div style="font-family: 'Cinzel', serif; font-size: 26px; font-weight: 600; color: #1A1130; line-height: 1.1;">Cinzel</div>
+      <div style="font-size: 11px; color: #837C95; margin-bottom: 12px;">Wordmark mítico / premium (logos 01–04)</div>
+      <div style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 600; color: #1A1130; line-height: 1.1;">Space Grotesk</div>
+      <div style="font-size: 11px; color: #837C95;">Wordmark tech / minimalista (logos 05–06) · apoios em Jost</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1280, &quot;height&quot;: 1760 },
+  &quot;accentGold&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#D8A84E&quot;, &quot;tsType&quot;: &quot;string&quot; },
+  &quot;deepViolet&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#1A1130&quot;, &quot;tsType&quot;: &quot;string&quot; },
+  &quot;showTagline&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
+}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      gold: this.props.accentGold ?? '#D8A84E',
+      violetDeep: this.props.deepViolet ?? '#1A1130',
+      showTagline: this.props.showTagline ?? true,
+    };
+  }
+}
+</script>
+</body>
+</html>

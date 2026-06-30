@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "svg-jsx-converter": "^0.2.2"
+  }
+}
