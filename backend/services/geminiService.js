@@ -148,6 +148,20 @@ async function executarFuncao(nome, args, phone, clienteId) {
   return { sucesso: false, erro: 'Função desconhecida' };
 }
 
+// ─── Retry com backoff para erros transitórios (503 sobrecarga) ───────────
+
+async function withRetry(fn, retries = 2) {
+  for (let tentativa = 0; ; tentativa++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const transitorio = /503|overloaded|high demand|UNAVAILABLE/i.test(err.message || '');
+      if (!transitorio || tentativa >= retries) throw err;
+      await sleep(800 * 2 ** tentativa + Math.random() * 300);
+    }
+  }
+}
+
 // ─── Processamento principal ───────────────────────────────────────────────
 
 async function processMessage(phone, userMessage) {
@@ -167,7 +181,7 @@ async function processMessage(phone, userMessage) {
   const history = historyCache.get(phone);
 
   const model = getClient().getGenerativeModel({
-    model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite',
     systemInstruction: systemPrompt,
     tools: TOOLS,
   });
@@ -175,7 +189,7 @@ async function processMessage(phone, userMessage) {
   const chat = model.startChat({ history });
 
   // 1ª chamada — pode resultar em função ou texto direto
-  const result1 = await chat.sendMessage(userMessage);
+  const result1 = await withRetry(() => chat.sendMessage(userMessage));
   const response1 = result1.response;
 
   let finalText;
@@ -195,7 +209,7 @@ async function processMessage(phone, userMessage) {
     }
 
     // Envia os resultados de volta para o Gemini gerar o texto final
-    const result2 = await chat.sendMessage(toolResponses);
+    const result2 = await withRetry(() => chat.sendMessage(toolResponses));
     finalText = result2.response.text();
   } else {
     finalText = response1.text();
@@ -212,5 +226,7 @@ async function processMessage(phone, userMessage) {
 function limparCache(phone) {
   historyCache.delete(phone);
 }
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 module.exports = { processMessage, limparCache };

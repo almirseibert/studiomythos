@@ -130,6 +130,7 @@ async function resolvePhone(msgFrom, getContactFn) {
 
 async function onIncoming(msg) {
   if (msg.fromMe) return;
+  if (msg.isStatus || msg.from === 'status@broadcast') return; // ignora status/stories públicos de contatos
   if (msg.from.endsWith('@g.us')) return; // ignora grupos
 
   // whatsapp-web.js >= 1.26 pode retornar @lid em vez de @c.us
@@ -174,6 +175,20 @@ async function onIncoming(msg) {
     }
   } catch (err) {
     console.error('[WA] Erro ao processar mensagem:', err.message);
+
+    // Gemini indisponível (429 cota, 503 sobrecarga etc.) — avisa o cliente e passa pra humano em vez de ficar mudo
+    if (/429|quota exceeded|503|service unavailable|high demand/i.test(err.message || '')) {
+      try {
+        const fallback = 'No momento estou com instabilidade e não consigo responder automaticamente 🙏 Já registrei sua mensagem e um de nossos consultores vai te responder em breve.';
+        const sentMsg = await msg.reply(fallback);
+        botSentIds.add(sentMsg.id.id);
+        await conversaService.salvarMensagem(phone, 'enviada', 'ia', fallback, sentMsg.id.id);
+        await conversaService.atualizarModo(phone, 'humano_ativo');
+        console.warn(`⚠️  [WA] Gemini indisponível — ${phone} passado para atendimento humano`);
+      } catch (fallbackErr) {
+        console.error('[WA] Falha ao enviar fallback de indisponibilidade:', fallbackErr.message);
+      }
+    }
   }
 }
 
@@ -181,6 +196,7 @@ async function onIncoming(msg) {
 
 async function onMessageCreate(msg) {
   if (!msg.fromMe) return;
+  if (msg.isStatus || msg.to === 'status@broadcast') return; // ignora postagem de status próprio
   if (msg.from.endsWith('@g.us')) return;
 
   // Se o ID está no set, foi enviado pelo bot — ignorar
