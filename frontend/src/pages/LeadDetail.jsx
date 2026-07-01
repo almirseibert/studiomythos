@@ -77,7 +77,14 @@ export default function LeadDetail() {
   }, [id]);
 
   const toggleServico = (sid) => {
-    setServicos(prev => prev.includes(sid) ? prev.filter(s => s !== sid) : [...prev, sid]);
+    setServicos(prev => {
+      const next = prev.includes(sid) ? prev.filter(s => s !== sid) : [...prev, sid];
+      const selected = catalogo.filter(s => next.includes(s.id));
+      setProduto(selected.map(s => s.label).join(', '));
+      const total = selected.reduce((acc, s) => acc + Number(s.valor_base || 0), 0);
+      setValorProposta(String(total));
+      return next;
+    });
   };
 
   const totalSugerido = catalogo
@@ -95,6 +102,7 @@ export default function LeadDetail() {
         servicos_oferecidos: servicos,
         produto_oferecido: produto,
         valor_proposta: Number(valorProposta) || 0,
+        valor_estimado: Number(valorProposta) || 0,
         contatos: contatos.filter(c => (c.nome || c.email || c.telefone)),
       });
       showToast('Proposta e contatos salvos!', 'success');
@@ -176,10 +184,8 @@ export default function LeadDetail() {
             </div>
             {servicos.length > 0 && (
               <div className="mt-4 flex items-center justify-between bg-white/10 rounded-xl px-4 py-2.5">
-                <span className="text-sm">{servicos.length} serviço(s) · sugestão de pacote</span>
-                <button onClick={() => setValorProposta(String(totalSugerido))} className="text-sm font-bold underline-offset-2 hover:underline">
-                  {formatCurrency(totalSugerido)} → usar como valor
-                </button>
+                <span className="text-sm">{servicos.length} serviço(s) selecionado(s)</span>
+                <span className="text-sm font-bold">{formatCurrency(totalSugerido)} — preenchido automaticamente</span>
               </div>
             )}
           </div>
@@ -190,7 +196,21 @@ export default function LeadDetail() {
               <h2 className="font-bold text-slate-800 mb-4">Dados do Lead</h2>
               <ul className="space-y-3 text-sm">
                 <Info icon={User} label="Contato" valor={lead.nome || '—'} />
-                <Info icon={Phone} label="Telefone" valor={lead.telefone || '—'} />
+                <li className="flex items-start gap-3">
+                  <Phone size={16} className="text-slate-400 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-slate-400">Telefone</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium text-slate-700">{lead.telefone || '—'}</p>
+                      {phoneToWa(lead.telefone) && (
+                        <a href={phoneToWa(lead.telefone)} target="_blank" rel="noreferrer"
+                          className="flex items-center gap-1 bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full transition-colors">
+                          <MessageCircle size={11} /> WhatsApp
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </li>
                 <Info icon={MapPin} label="Endereço" valor={lead.endereco || '—'} />
                 <Info icon={Tag} label="Categoria" valor={lead.categoria || '—'} />
                 <li className="flex items-start gap-3">
@@ -213,8 +233,15 @@ export default function LeadDetail() {
                 <ul className="space-y-2 text-sm">
                   {lead.detalhes_externos.map((d, i) => (
                     <li key={i} className="flex justify-between gap-3 border-b border-slate-50 pb-1.5 last:border-0">
-                      <span className="text-slate-400">{d.label}</span>
-                      <span className="font-medium text-slate-700 text-right break-all">{d.valor}</span>
+                      <span className="text-slate-400 shrink-0">{d.label}</span>
+                      {isUrl(d.valor) ? (
+                        <a href={d.valor} target="_blank" rel="noreferrer"
+                          className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline text-right flex items-center gap-1">
+                          Abrir no mapa ↗
+                        </a>
+                      ) : (
+                        <span className="font-medium text-slate-700 text-right">{d.valor}</span>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -286,8 +313,16 @@ export default function LeadDetail() {
                       <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
                         <input value={c.nome || ''} onChange={e => updateContato(i, 'nome', e.target.value)} placeholder="Nome"
                           className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
-                        <input value={c.telefone || ''} onChange={e => updateContato(i, 'telefone', e.target.value)} placeholder="Telefone"
-                          className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
+                        <div className="relative flex items-center">
+                          <input value={c.telefone || ''} onChange={e => updateContato(i, 'telefone', e.target.value)} placeholder="Telefone"
+                            className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 pr-8 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
+                          {phoneToWa(c.telefone) && (
+                            <a href={phoneToWa(c.telefone)} target="_blank" rel="noreferrer"
+                              className="absolute right-2 text-emerald-500 hover:text-emerald-700">
+                              <MessageCircle size={14} />
+                            </a>
+                          )}
+                        </div>
                         <input value={c.email || ''} onChange={e => updateContato(i, 'email', e.target.value)} placeholder="E-mail"
                           className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
                         <button onClick={() => removeContato(i)} className="text-slate-300 hover:text-red-500 p-1.5 justify-self-end"><Trash2 size={16} /></button>
@@ -366,4 +401,15 @@ function Info({ icon: Icon, label, valor }) {
       </div>
     </li>
   );
+}
+
+function phoneToWa(phone) {
+  if (!phone) return null;
+  const d = phone.replace(/\D/g, '');
+  if (d.length < 10) return null;
+  return `https://wa.me/${d.startsWith('55') ? d : '55' + d}`;
+}
+
+function isUrl(str) {
+  return typeof str === 'string' && (str.startsWith('http://') || str.startsWith('https://'));
 }
