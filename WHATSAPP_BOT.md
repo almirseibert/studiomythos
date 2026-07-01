@@ -44,6 +44,7 @@ do WhatsApp Web via Puppeteer/Chromium) — ver o repositório para referência 
 WHATSAPP_ENABLED=true            # sem isso o bot nunca inicializa (server.js só chama initialize() se true)
 GEMINI_API_KEY=<chave real>      # geminiService.getClient() lança erro se estiver vazia ou com "inserir_"
 GEMINI_MODEL=gemini-2.5-flash-lite  # padrão atual (2026-07); alternativas: gemini-2.5-flash, gemini-2.5-pro
+GEMINI_MODEL_FALLBACK=gemini-2.5-flash  # usado automaticamente se o modelo principal ficar sobrecarregado (503) mesmo após os retries
 ```
 
 ⚠️ **Modelos descontinuados pelo Google** (retornam `404 Not Found`, não usar): `gemini-2.0-flash`,
@@ -60,7 +61,7 @@ Causas mais comuns do bot "não responder automaticamente":
 3. Sessão nunca chegou ao status `pronto` (verificar `GET /api/whatsapp/status` e o QR code no painel)
 4. Conversa presa em `modo = humano_ativo` (um vendedor mandou mensagem manual antes e ninguém "devolveu à IA" pelo painel)
 5. **Cota do Gemini estourada (HTTP 429)** — se o erro mostrar `limit: 0` em todas as métricas (não só "excedeu"), o projeto/chave do Google Cloud por trás da `GEMINI_API_KEY` não tem cota free-tier habilitada. Verificar em https://aistudio.google.com/apikey a qual projeto a chave pertence e o tier de billing; trocar de modelo (ex.: `gemini-2.0-flash` → `gemini-2.0-flash-lite`) só ajuda se a cota zerada for específica daquele modelo — se for cota zerada no projeto inteiro, o problema é de billing/config no Google Cloud (saldo pré-pago em `aistudio.google.com/billing`), não de modelo.
-6. **503 "Service Unavailable" / "high demand"** — sobrecarga temporária do lado do Google, não é erro de configuração. `geminiService.js` faz retry automático com backoff (`withRetry`, até 2 tentativas extras) para erros 503/overloaded antes de desistir.
+6. **503 "Service Unavailable" / "high demand"** — sobrecarga temporária do lado do Google, não é erro de configuração. `geminiService.js` faz retry automático com backoff (`withRetry`, até 3 tentativas extras) e, se o modelo principal continuar sobrecarregado, tenta automaticamente o `GEMINI_MODEL_FALLBACK` (padrão `gemini-2.5-flash`) antes de desistir e passar pra humano. Se AMBOS os modelos derem 503 seguido, é sobrecarga ampla do Google (não específica de um modelo) — não há mais o que fazer do lado do bot além de esperar.
 
 Desde 2026-07-01, `onIncoming` em `whatsappService.js` detecta erro 429/quota/503/sobrecarga e, em vez de ficar mudo, envia uma mensagem de aviso ao cliente e muda a conversa para `modo = humano_ativo`.
 

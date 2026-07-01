@@ -14,6 +14,9 @@ let isInitializing = false;
 // IDs de mensagens enviadas pelo bot (para distinguir de mensagens enviadas por humanos no dispositivo)
 const botSentIds = new Set();
 const MAX_BOT_IDS = 2000;
+// Telefones para os quais o bot está enviando mensagem NESTE INSTANTE — cobre a corrida em que
+// o evento 'message_create' dispara ANTES da Promise de msg.reply() resolver (e do ID entrar em botSentIds)
+const botSendingTo = new Set();
 
 // ─── Estado público ────────────────────────────────────────────────────────
 
@@ -126,6 +129,22 @@ async function resolvePhone(msgFrom, getContactFn) {
   return digits ? `${digits}@c.us` : msgFrom;
 }
 
+// ─── Envia resposta como bot, protegendo contra a corrida do message_create ─
+
+async function enviarResposta(msg, phone, text) {
+  botSendingTo.add(phone);
+  try {
+    const sentMsg = await msg.reply(text);
+    botSentIds.add(sentMsg.id.id);
+    if (botSentIds.size > MAX_BOT_IDS) {
+      const [first] = botSentIds; botSentIds.delete(first);
+    }
+    return sentMsg;
+  } finally {
+    botSendingTo.delete(phone);
+  }
+}
+
 // ─── Mensagem RECEBIDA (de contato externo) ────────────────────────────────
 
 async function onIncoming(msg) {
@@ -162,11 +181,7 @@ async function onIncoming(msg) {
     await sleep(Math.min(resultado.text.length * 18, 4500));
 
     // Envia resposta
-    const sentMsg = await msg.reply(resultado.text);
-    botSentIds.add(sentMsg.id.id);
-    if (botSentIds.size > MAX_BOT_IDS) {
-      const [first] = botSentIds; botSentIds.delete(first);
-    }
+    const sentMsg = await enviarResposta(msg, phone, resultado.text);
 
     await conversaService.salvarMensagem(phone, 'enviada', 'ia', resultado.text, sentMsg.id.id);
 
@@ -180,8 +195,7 @@ async function onIncoming(msg) {
     if (/429|quota exceeded|503|service unavailable|high demand/i.test(err.message || '')) {
       try {
         const fallback = 'No momento estou com instabilidade e não consigo responder automaticamente 🙏 Já registrei sua mensagem e um de nossos consultores vai te responder em breve.';
-        const sentMsg = await msg.reply(fallback);
-        botSentIds.add(sentMsg.id.id);
+        const sentMsg = await enviarResposta(msg, phone, fallback);
         await conversaService.salvarMensagem(phone, 'enviada', 'ia', fallback, sentMsg.id.id);
         await conversaService.atualizarModo(phone, 'humano_ativo');
         console.warn(`⚠️  [WA] Gemini indisponível — ${phone} passado para atendimento humano`);
@@ -202,8 +216,14 @@ async function onMessageCreate(msg) {
   // Se o ID está no set, foi enviado pelo bot — ignorar
   if (botSentIds.has(msg.id.id)) return;
 
-  // Foi digitado por um humano no dispositivo — assume o atendimento
   const phone = await resolvePhone(msg.to, () => client.getContactById(msg.to));
+
+  // Corrida: 'message_create' pode disparar antes da Promise de enviarResposta() resolver
+  // (e portanto antes do ID cair em botSentIds) — se o bot está enviando pra este telefone
+  // agora, é a própria mensagem do bot, não um humano digitando.
+  if (botSendingTo.has(phone)) return;
+
+  // Foi digitado por um humano no dispositivo — assume o atendimento
   const text = (msg.body || '').trim();
   if (!text) return;
 
@@ -241,6 +261,7 @@ async function restart() {
   if (client) { try { await client.destroy(); } catch (_) {} client = null; }
   botStatus = 'desconectado'; isInitializing = false; qrData = null;
   botSentIds.clear();
+  botSendingTo.clear();
   await sleep(1500);
   limparLocksCromium(); // garante limpeza antes de reiniciar
   await initialize();

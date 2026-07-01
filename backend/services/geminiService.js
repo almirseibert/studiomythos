@@ -16,7 +16,15 @@ function getClient() {
 function buildSystemPrompt(contexto) {
   const { cliente, interacoes, memorias, agendamentos } = contexto;
 
-  let prompt = `Você é Mythos, assistente virtual da Studio Mythos — software house especializada em produtos digitais de alto padrão.
+  let prompt = `Atue como Mythos, um executivo de vendas altamente profissional, com toda a experiência em vendas do maior vendedor do mundo, trabalhando para a Studio Mythos — um estúdio full-service de produto digital. Produzimos Sites, e-commerce, aplicativos, plataformas internas e marketing.
+
+SEU PROPÓSITO:
+Trabalhar para oferecer os produtos e serviços da Studio Mythos, sempre focando na conversão de vendas e no agendamento de reuniões.
+
+TOM DE VOZ E PERSONALIDADE:
+- Estilo de fala: direto, amigável, profissional
+- Humor: sério, mas brincalhão e acolhedor quando a conversa permitir
+- Nível de formalidade: altamente formal e polido
 
 SERVIÇOS DA STUDIO MYTHOS:
 - Sites institucionais, landing pages e e-commerce
@@ -26,8 +34,10 @@ SERVIÇOS DA STUDIO MYTHOS:
 - Suporte e manutenção técnica contínua
 - Site: studiomythos.com.br | Horário humano: Seg-Sex, 9h–18h
 
-REGRAS DE COMPORTAMENTO:
-- Seja cordial, natural e profissional — nunca robótico ou genérico
+DIRETRIZES DE COMPORTAMENTO:
+- Sempre responda com objetividade
+- Nunca use linguagem ofensiva
+- Faça perguntas para esclarecer dúvidas quando necessário
 - Respostas curtas e diretas (estilo WhatsApp) — máximo 3 parágrafos
 - Use emojis com moderação: no máximo 2 por mensagem
 - NUNCA invente preços, prazos ou promessas — tudo depende de escopo
@@ -150,16 +160,57 @@ async function executarFuncao(nome, args, phone, clienteId) {
 
 // ─── Retry com backoff para erros transitórios (503 sobrecarga) ───────────
 
-async function withRetry(fn, retries = 2) {
+function isTransitorio(err) {
+  return /503|overloaded|high demand|UNAVAILABLE/i.test(err.message || '');
+}
+
+async function withRetry(fn, retries = 3) {
   for (let tentativa = 0; ; tentativa++) {
     try {
       return await fn();
     } catch (err) {
-      const transitorio = /503|overloaded|high demand|UNAVAILABLE/i.test(err.message || '');
-      if (!transitorio || tentativa >= retries) throw err;
-      await sleep(800 * 2 ** tentativa + Math.random() * 300);
+      if (!isTransitorio(err) || tentativa >= retries) throw err;
+      await sleep(1000 * 2 ** tentativa + Math.random() * 300);
     }
   }
+}
+
+// ─── Chamada ao Gemini isolada por modelo (permite trocar de modelo em fallback) ──
+
+async function gerarResposta(modelName, systemPrompt, history, userMessage, phone, clienteId) {
+  const model = getClient().getGenerativeModel({
+    model: modelName,
+    systemInstruction: systemPrompt,
+    tools: TOOLS,
+  });
+
+  const chat = model.startChat({ history });
+
+  const result1 = await chat.sendMessage(userMessage);
+  const response1 = result1.response;
+
+  let finalText;
+  let handover = false;
+
+  const fnCalls = response1.functionCalls ? response1.functionCalls() : [];
+
+  if (fnCalls && fnCalls.length > 0) {
+    const toolResponses = [];
+    for (const fn of fnCalls) {
+      const fnResult = await executarFuncao(fn.name, fn.args, phone, clienteId);
+      if (fn.name === 'solicitar_humano' && fnResult.handover) handover = true;
+      toolResponses.push({
+        functionResponse: { name: fn.name, response: { result: fnResult } },
+      });
+    }
+
+    const result2 = await chat.sendMessage(toolResponses);
+    finalText = result2.response.text();
+  } else {
+    finalText = response1.text();
+  }
+
+  return { text: finalText, handover };
 }
 
 // ─── Processamento principal ───────────────────────────────────────────────
@@ -180,47 +231,35 @@ async function processMessage(phone, userMessage) {
   }
   const history = historyCache.get(phone);
 
-  const model = getClient().getGenerativeModel({
-    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite',
-    systemInstruction: systemPrompt,
-    tools: TOOLS,
-  });
+  // Cadeia de modelos: se o principal estiver sobrecarregado (503) mesmo após
+  // retries, tenta o modelo de fallback antes de desistir e passar pra humano.
+  const modelosParaTentar = [
+    process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite',
+    process.env.GEMINI_MODEL_FALLBACK || 'gemini-2.5-flash',
+  ].filter((m, i, arr) => arr.indexOf(m) === i); // remove duplicata se ambos apontarem pro mesmo modelo
 
-  const chat = model.startChat({ history });
-
-  // 1ª chamada — pode resultar em função ou texto direto
-  const result1 = await withRetry(() => chat.sendMessage(userMessage));
-  const response1 = result1.response;
-
-  let finalText;
-  let handover = false;
-
-  const fnCalls = response1.functionCalls ? response1.functionCalls() : [];
-
-  if (fnCalls && fnCalls.length > 0) {
-    // Executa todas as funções solicitadas
-    const toolResponses = [];
-    for (const fn of fnCalls) {
-      const fnResult = await executarFuncao(fn.name, fn.args, phone, contexto.cliente?.id ?? null);
-      if (fn.name === 'solicitar_humano' && fnResult.handover) handover = true;
-      toolResponses.push({
-        functionResponse: { name: fn.name, response: { result: fnResult } },
-      });
+  let resultado;
+  let ultimoErro;
+  for (const modelName of modelosParaTentar) {
+    try {
+      resultado = await withRetry(() =>
+        gerarResposta(modelName, systemPrompt, history, userMessage, phone, contexto.cliente?.id ?? null)
+      );
+      break;
+    } catch (err) {
+      ultimoErro = err;
+      if (!isTransitorio(err)) throw err;
+      console.warn(`[Gemini] Modelo "${modelName}" indisponível (503), tentando próximo da cadeia...`);
     }
-
-    // Envia os resultados de volta para o Gemini gerar o texto final
-    const result2 = await withRetry(() => chat.sendMessage(toolResponses));
-    finalText = result2.response.text();
-  } else {
-    finalText = response1.text();
   }
+  if (!resultado) throw ultimoErro;
 
   // Atualiza cache do histórico
   history.push({ role: 'user', parts: [{ text: userMessage }] });
-  history.push({ role: 'model', parts: [{ text: finalText }] });
+  history.push({ role: 'model', parts: [{ text: resultado.text }] });
   if (history.length > 60) historyCache.set(phone, history.slice(-60));
 
-  return { text: finalText, handover };
+  return resultado;
 }
 
 function limparCache(phone) {
