@@ -1,5 +1,7 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const QRCode = require('qrcode');
+const fs = require('fs');
+const path = require('path');
 const geminiService = require('./geminiService');
 const conversaService = require('./conversaService');
 
@@ -24,6 +26,28 @@ async function getQRImage() {
   return QRCode.toDataURL(qrData);
 }
 
+// ─── Remove locks do Chromium deixados por crashes anteriores ─────────────
+
+function limparLocksCromium() {
+  const sessionDir = path.resolve('./whatsapp-sessions');
+  const lockFiles = ['SingletonLock', 'SingletonSocket', 'SingletonCookie'];
+  let removidos = 0;
+  try {
+    const percorrer = (dir) => {
+      if (!fs.existsSync(dir)) return;
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) { percorrer(fullPath); continue; }
+        if (lockFiles.includes(entry.name)) {
+          try { fs.unlinkSync(fullPath); removidos++; } catch (_) {}
+        }
+      }
+    };
+    percorrer(sessionDir);
+    if (removidos > 0) console.log(`🧹 [WA] ${removidos} lock(s) do Chromium removido(s)`);
+  } catch (_) {}
+}
+
 // ─── Inicialização ─────────────────────────────────────────────────────────
 
 async function initialize() {
@@ -33,6 +57,8 @@ async function initialize() {
   console.log('\n📱 Iniciando WhatsApp Bot Studio Mythos...');
 
   try {
+    limparLocksCromium(); // remove SingletonLock de crashes anteriores
+
     const puppeteerOpts = {
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage',
@@ -186,6 +212,7 @@ async function restart() {
   botStatus = 'desconectado'; isInitializing = false; qrData = null;
   botSentIds.clear();
   await sleep(1500);
+  limparLocksCromium(); // garante limpeza antes de reiniciar
   await initialize();
 }
 
