@@ -19,15 +19,19 @@ do WhatsApp Web via Puppeteer/Chromium) — ver o repositório para referência 
 - `whatsapp_conversas` — uma linha por número, com `modo` (`ia_ativa` / `humano_ativo` / `aguardando`) e vínculo opcional a `clientes`
 - `whatsapp_mensagens` — histórico completo (remetente: `cliente` / `ia` / `humano`)
 - `whatsapp_memoria_ia` — fatos/preferências que a IA registra sobre o contato (function calling `salvar_memoria`)
-- `whatsapp_agendamentos` — reuniões marcadas pela IA (function calling `agendar_reuniao`)
+- `whatsapp_agendamentos` — reuniões marcadas pela IA (function calling `agendar_reuniao`, alteradas/canceladas via `alterar_agendamento`). Formato (presencial/vídeo) e cidade do cliente vão dentro de `descricao`, sem coluna dedicada — sede da Studio Mythos é Lajeado/RS, regra de ~50km pra oferecer presencial está só no system prompt (`geminiService.js`)
 
 ## Fluxo de mensagens
 
 1. Contato envia mensagem → evento `message` (`onIncoming` em `whatsappService.js`)
-2. Mensagem é salva no banco; se a conversa está em `modo = humano_ativo`, a IA **não responde**
-3. Caso contrário, `geminiService.processMessage()` monta o prompt (dados do CRM + memórias + agenda) e chama o Gemini
-4. Resposta é enviada com delay humanizado (`sleep` + "digitando…") e o `id` da mensagem enviada é guardado em `botSentIds`
-5. Se um vendedor digita direto no celular → evento `message_create` (`onMessageCreate`) detecta que o `id` **não** está em `botSentIds` → assume que foi humano → muda `modo` para `humano_ativo` e limpa o cache do Gemini daquele número
+2. Mensagem é salva no banco imediatamente; se a conversa está em `modo = humano_ativo`, a IA **não responde**
+3. Caso contrário, a mensagem entra no buffer de debounce (`enfileirarMensagem`) em vez de ser processada na hora:
+   - Espera `DEBOUNCE_MS` (20s) de silêncio do contato antes de gerar a resposta
+   - Se o contato mandar outra mensagem antes disso, o texto é acumulado e o timer de 20s **reinicia do zero**
+   - Ao fechar a janela, `geminiService.processMessage()` recebe TODAS as mensagens acumuladas juntas (uma por linha) como um único contexto, monta o prompt (dados do CRM + memórias + agenda) e chama o Gemini
+   - Antes de enviar, mostra "digitando…" por `TYPING_MS` (3s)
+4. Resposta é enviada (`enviarResposta`) e o `id` da mensagem enviada é guardado em `botSentIds`
+5. Se um vendedor digita direto no celular → evento `message_create` (`onMessageCreate`) detecta que o `id` **não** está em `botSentIds` → assume que foi humano → muda `modo` para `humano_ativo`, cancela qualquer buffer pendente daquele número e limpa o cache do Gemini
 6. Vendedor pode devolver o atendimento à IA pelo painel (`whatsappRoutes.js`)
 
 ## Filtro de grupos e status (stories)

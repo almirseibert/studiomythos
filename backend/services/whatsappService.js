@@ -15,7 +15,7 @@ let isInitializing = false;
 const botSentIds = new Set();
 const MAX_BOT_IDS = 2000;
 // Telefones para os quais o bot está enviando mensagem NESTE INSTANTE — cobre a corrida em que
-// o evento 'message_create' dispara ANTES da Promise de msg.reply() resolver (e do ID entrar em botSentIds)
+// o evento 'message_create' dispara ANTES da Promise de enviarResposta() resolver (e do ID entrar em botSentIds)
 const botSendingTo = new Set();
 
 // ─── Estado público ────────────────────────────────────────────────────────
@@ -131,10 +131,10 @@ async function resolvePhone(msgFrom, getContactFn) {
 
 // ─── Envia resposta como bot, protegendo contra a corrida do message_create ─
 
-async function enviarResposta(msg, phone, text) {
+async function enviarResposta(phone, text) {
   botSendingTo.add(phone);
   try {
-    const sentMsg = await msg.reply(text);
+    const sentMsg = await client.sendMessage(phone, text);
     botSentIds.add(sentMsg.id.id);
     if (botSentIds.size > MAX_BOT_IDS) {
       const [first] = botSentIds; botSentIds.delete(first);
@@ -142,6 +142,79 @@ async function enviarResposta(msg, phone, text) {
     return sentMsg;
   } finally {
     botSendingTo.delete(phone);
+  }
+}
+
+// ─── Agrupa mensagens rápidas do cliente antes de responder ────────────────
+// Cada mensagem nova reinicia a janela de espera (debounce). Só depois de
+// DEBOUNCE_MS de silêncio a IA processa TODAS as mensagens acumuladas como um
+// único contexto, mostra "digitando..." por TYPING_MS e então envia a resposta.
+
+const DEBOUNCE_MS = 20000;
+const TYPING_MS = 3000;
+const bufferPorTelefone = new Map(); // phone → { textos: string[], timer, ultimoMsg }
+
+function enfileirarMensagem(phone, text, msg) {
+  let buffer = bufferPorTelefone.get(phone);
+  if (!buffer) {
+    buffer = { textos: [], timer: null, ultimoMsg: null };
+    bufferPorTelefone.set(phone, buffer);
+  }
+  buffer.textos.push(text);
+  buffer.ultimoMsg = msg;
+
+  if (buffer.timer) clearTimeout(buffer.timer);
+  buffer.timer = setTimeout(() => {
+    processarBuffer(phone).catch(err => console.error('[WA] Erro ao processar buffer:', err.message));
+  }, DEBOUNCE_MS);
+}
+
+async function processarBuffer(phone) {
+  const buffer = bufferPorTelefone.get(phone);
+  if (!buffer || buffer.textos.length === 0) return;
+  bufferPorTelefone.delete(phone); // libera o slot; mensagem nova durante o processamento cria buffer próprio
+
+  const mensagemCombinada = buffer.textos.join('\n');
+
+  try {
+    // Um humano pode ter assumido a conversa enquanto o bot esperava a janela de silêncio
+    const conversa = await conversaService.obterOuCriarConversa(phone);
+    if (conversa.modo === 'humano_ativo') {
+      console.log(`👤 [WA] ${phone} em atendimento humano — IA não responde ao buffer acumulado`);
+      return;
+    }
+
+    const resultado = await geminiService.processMessage(phone, mensagemCombinada);
+    if (!resultado) return;
+
+    // Mostra "digitando..." por alguns segundos antes de enviar
+    try {
+      const chat = await buffer.ultimoMsg.getChat();
+      await chat.sendStateTyping();
+    } catch (_) {}
+    await sleep(TYPING_MS);
+
+    const sentMsg = await enviarResposta(phone, resultado.text);
+    await conversaService.salvarMensagem(phone, 'enviada', 'ia', resultado.text, sentMsg.id.id);
+
+    if (resultado.handover) {
+      console.log(`🔔 [WA] Handover para humano — ${phone}`);
+    }
+  } catch (err) {
+    console.error('[WA] Erro ao processar mensagem:', err.message);
+
+    // Gemini indisponível (429 cota, 503 sobrecarga etc.) — avisa o cliente e passa pra humano em vez de ficar mudo
+    if (/429|quota exceeded|503|service unavailable|high demand/i.test(err.message || '')) {
+      try {
+        const fallback = 'No momento estou com instabilidade e não consigo responder automaticamente 🙏 Já registrei sua mensagem e um de nossos consultores vai te responder em breve.';
+        const sentMsg = await enviarResposta(phone, fallback);
+        await conversaService.salvarMensagem(phone, 'enviada', 'ia', fallback, sentMsg.id.id);
+        await conversaService.atualizarModo(phone, 'humano_ativo');
+        console.warn(`⚠️  [WA] Gemini indisponível — ${phone} passado para atendimento humano`);
+      } catch (fallbackErr) {
+        console.error('[WA] Falha ao enviar fallback de indisponibilidade:', fallbackErr.message);
+      }
+    }
   }
 }
 
@@ -160,7 +233,7 @@ async function onIncoming(msg) {
   console.log(`📩 [WA] ${phone}: ${text.substring(0, 80)}`);
 
   try {
-    // Persiste a mensagem do cliente
+    // Persiste a mensagem do cliente imediatamente (histórico fica correto mesmo se o buffer nunca fechar)
     await conversaService.salvarMensagem(phone, 'recebida', 'cliente', text, msg.id.id);
 
     // Verifica se está em modo humano
@@ -170,39 +243,10 @@ async function onIncoming(msg) {
       return;
     }
 
-    // Processa com IA Gemini
-    const resultado = await geminiService.processMessage(phone, text);
-    if (!resultado) return;
-
-    // Delay humanizado: pausa + "digitando..."
-    await sleep(1200 + Math.random() * 1500);
-    const chat = await msg.getChat();
-    await chat.sendStateTyping();
-    await sleep(Math.min(resultado.text.length * 18, 4500));
-
-    // Envia resposta
-    const sentMsg = await enviarResposta(msg, phone, resultado.text);
-
-    await conversaService.salvarMensagem(phone, 'enviada', 'ia', resultado.text, sentMsg.id.id);
-
-    if (resultado.handover) {
-      console.log(`🔔 [WA] Handover para humano — ${phone}`);
-    }
+    // Acumula no buffer — só processa após DEBOUNCE_MS de silêncio do cliente
+    enfileirarMensagem(phone, text, msg);
   } catch (err) {
     console.error('[WA] Erro ao processar mensagem:', err.message);
-
-    // Gemini indisponível (429 cota, 503 sobrecarga etc.) — avisa o cliente e passa pra humano em vez de ficar mudo
-    if (/429|quota exceeded|503|service unavailable|high demand/i.test(err.message || '')) {
-      try {
-        const fallback = 'No momento estou com instabilidade e não consigo responder automaticamente 🙏 Já registrei sua mensagem e um de nossos consultores vai te responder em breve.';
-        const sentMsg = await enviarResposta(msg, phone, fallback);
-        await conversaService.salvarMensagem(phone, 'enviada', 'ia', fallback, sentMsg.id.id);
-        await conversaService.atualizarModo(phone, 'humano_ativo');
-        console.warn(`⚠️  [WA] Gemini indisponível — ${phone} passado para atendimento humano`);
-      } catch (fallbackErr) {
-        console.error('[WA] Falha ao enviar fallback de indisponibilidade:', fallbackErr.message);
-      }
-    }
   }
 }
 
@@ -232,11 +276,21 @@ async function onMessageCreate(msg) {
   try {
     await conversaService.salvarMensagem(phone, 'enviada', 'humano', text, msg.id.id);
     await conversaService.atualizarModo(phone, 'humano_ativo');
+    cancelarBuffer(phone); // humano assumiu — cancela resposta da IA que estivesse aguardando na janela de debounce
     // Limpa cache do Gemini para quando a IA retornar
     geminiService.limparCache(phone);
   } catch (err) {
     console.error('[WA] Erro ao registrar mensagem humana:', err.message);
   }
+}
+
+// ─── Cancela um buffer de mensagens pendente (ex.: humano assumiu a conversa) ─
+
+function cancelarBuffer(phone) {
+  const buffer = bufferPorTelefone.get(phone);
+  if (!buffer) return;
+  if (buffer.timer) clearTimeout(buffer.timer);
+  bufferPorTelefone.delete(phone);
 }
 
 // ─── Envio via API (vendedor pelo painel) ──────────────────────────────────
@@ -251,6 +305,7 @@ async function sendMessage(phone, text, vendedorId = null) {
   // Salva no banco como mensagem humana
   await conversaService.salvarMensagem(chatId, 'enviada', 'humano', text, sentMsg.id.id);
   if (vendedorId) await conversaService.atualizarModo(chatId, 'humano_ativo', vendedorId);
+  cancelarBuffer(chatId); // humano assumiu — cancela resposta da IA que estivesse aguardando na janela de debounce
 
   return sentMsg;
 }
@@ -262,6 +317,8 @@ async function restart() {
   botStatus = 'desconectado'; isInitializing = false; qrData = null;
   botSentIds.clear();
   botSendingTo.clear();
+  for (const buffer of bufferPorTelefone.values()) { if (buffer.timer) clearTimeout(buffer.timer); }
+  bufferPorTelefone.clear();
   await sleep(1500);
   limparLocksCromium(); // garante limpeza antes de reiniciar
   await initialize();

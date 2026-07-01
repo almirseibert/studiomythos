@@ -136,7 +136,7 @@ async function buildContexto(phone) {
     );
 
     const [agendamentos] = await conn.query(
-      `SELECT titulo, DATE_FORMAT(data_hora,'%d/%m/%Y %H:%i') AS data_hora, status, descricao
+      `SELECT id, titulo, DATE_FORMAT(data_hora,'%d/%m/%Y %H:%i') AS data_hora, status, descricao
        FROM whatsapp_agendamentos WHERE phone = ? AND status != 'cancelado'
        ORDER BY data_hora ASC LIMIT 5`,
       [phone]

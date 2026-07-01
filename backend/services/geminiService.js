@@ -46,8 +46,24 @@ DIRETRIZES DE COMPORTAMENTO:
 - Para coletar orçamento: nome completo, e-mail, tipo de projeto e descrição
 - Quando o cliente pedir para falar com humano → use a função solicitar_humano
 
+AO AGENDAR UMA REUNIÃO:
+- A sede da Studio Mythos fica em Lajeado/RS. ANTES de chamar agendar_reuniao, pergunte ao
+  cliente se prefere reunião presencial ou por vídeo/chamada
+- Se o cliente quiser presencial, pergunte a cidade dele. Se a cidade estiver a mais de
+  ~50km de Lajeado/RS (ex: fora do Vale do Taquari), explique educadamente que presencial
+  só é viável dentro dessa distância e ofereça vídeo/chamada como alternativa
+- Passe o formato escolhido no campo "modalidade" e a cidade do cliente no campo
+  "cidade_cliente" ao chamar agendar_reuniao
+- APÓS agendar com sucesso, SEMPRE responda ao cliente: agradeça o contato, confirme data,
+  horário e formato da reunião, avise que qualquer cancelamento ou alteração de data pode
+  ser resolvido falando diretamente com você (a IA) por aqui mesmo, pergunte se ficou
+  alguma dúvida e se despeça cordialmente
+- Se o cliente pedir para reagendar ou cancelar uma reunião já marcada, use a função
+  alterar_agendamento com o [ID] correspondente (veja a lista de agendamentos do contato)
+
 FUNÇÕES DISPONÍVEIS:
-- agendar_reuniao: use quando o cliente aceitar marcar uma reunião/ligação
+- agendar_reuniao: use quando o cliente aceitar marcar uma reunião/ligação (depois de confirmar o formato)
+- alterar_agendamento: use para reagendar (nova data) ou cancelar uma reunião já existente
 - salvar_memoria: use para registrar preferências, objeções, fatos importantes do cliente
 - solicitar_humano: use quando o cliente pedir atendimento humano ou quando a situação exigir um vendedor`;
 
@@ -81,9 +97,10 @@ Novo contato — sem cadastro no CRM ainda. Tente identificar nome, empresa e in
   }
 
   if (agendamentos.length > 0) {
-    prompt += `\n\n══ AGENDAMENTOS COM ESTE CONTATO ══`;
+    prompt += `\n\n══ AGENDAMENTOS COM ESTE CONTATO ══
+Use o campo [ID] com a função alterar_agendamento se o cliente pedir para reagendar ou cancelar.`;
     for (const a of agendamentos) {
-      prompt += `\n• ${a.titulo} em ${a.data_hora} (${a.status})${a.descricao ? ' — ' + a.descricao : ''}`;
+      prompt += `\n• [ID ${a.id}] ${a.titulo} em ${a.data_hora} (${a.status})${a.descricao ? ' — ' + a.descricao : ''}`;
     }
   }
 
@@ -96,15 +113,30 @@ const TOOLS = [{
   functionDeclarations: [
     {
       name: 'agendar_reuniao',
-      description: 'Agenda uma reunião ou ligação com o cliente. Use quando o cliente aceitar marcar um horário.',
+      description: 'Agenda uma reunião ou ligação com o cliente. Só chame depois de perguntar e confirmar o formato (presencial ou vídeo/chamada) com o cliente.',
       parameters: {
         type: 'OBJECT',
         properties: {
-          titulo:    { type: 'STRING', description: 'Título da reunião, ex: "Diagnóstico gratuito Studio Mythos"' },
-          data_hora: { type: 'STRING', description: 'Data e hora no formato AAAA-MM-DD HH:MM' },
-          descricao: { type: 'STRING', description: 'Detalhes adicionais sobre o que será discutido' },
+          titulo:          { type: 'STRING', description: 'Título da reunião, ex: "Diagnóstico gratuito Studio Mythos"' },
+          data_hora:       { type: 'STRING', description: 'Data e hora no formato AAAA-MM-DD HH:MM' },
+          modalidade:      { type: 'STRING', description: 'Formato combinado com o cliente: "presencial" ou "video"' },
+          cidade_cliente:  { type: 'STRING', description: 'Cidade do cliente, obrigatória se modalidade = presencial' },
+          descricao:       { type: 'STRING', description: 'Detalhes adicionais sobre o que será discutido' },
         },
-        required: ['titulo', 'data_hora'],
+        required: ['titulo', 'data_hora', 'modalidade'],
+      },
+    },
+    {
+      name: 'alterar_agendamento',
+      description: 'Reagenda (nova data/hora) ou cancela uma reunião já existente. Use quando o cliente pedir para remarcar ou desmarcar, referenciando o [ID] listado nos agendamentos do contato.',
+      parameters: {
+        type: 'OBJECT',
+        properties: {
+          agendamento_id: { type: 'NUMBER', description: 'ID do agendamento a alterar (veja a lista de agendamentos do contato)' },
+          novo_status:    { type: 'STRING', description: 'Use "cancelado" para cancelar. Deixe em branco se for só reagendar.' },
+          nova_data_hora: { type: 'STRING', description: 'Nova data e hora no formato AAAA-MM-DD HH:MM, se for reagendar' },
+        },
+        required: ['agendamento_id'],
       },
     },
     {
@@ -137,10 +169,27 @@ const TOOLS = [{
 
 async function executarFuncao(nome, args, phone, clienteId) {
   if (nome === 'agendar_reuniao') {
+    const modalidade = args.modalidade === 'presencial' ? 'Presencial' : 'Vídeo/chamada';
+    const detalhes = [
+      `Formato: ${modalidade}${args.cidade_cliente ? ` (cliente em ${args.cidade_cliente})` : ''}`,
+      args.descricao || null,
+    ].filter(Boolean).join(' — ');
+
     const id = await conversaService.criarAgendamento(
-      phone, args.titulo, args.data_hora, args.descricao || null, clienteId
+      phone, args.titulo, args.data_hora, detalhes, clienteId
     );
-    return { sucesso: true, id, mensagem: `Reunião "${args.titulo}" agendada para ${args.data_hora}` };
+    return { sucesso: true, id, mensagem: `Reunião "${args.titulo}" agendada para ${args.data_hora} (${modalidade})` };
+  }
+
+  if (nome === 'alterar_agendamento') {
+    const campos = {};
+    if (args.nova_data_hora) campos.data_hora = args.nova_data_hora;
+    if (args.novo_status) campos.status = args.novo_status;
+    if (Object.keys(campos).length === 0) {
+      return { sucesso: false, erro: 'Nenhuma alteração informada (nova_data_hora ou novo_status)' };
+    }
+    await conversaService.atualizarAgendamento(args.agendamento_id, campos);
+    return { sucesso: true, mensagem: 'Agendamento atualizado com sucesso' };
   }
 
   if (nome === 'salvar_memoria') {
@@ -177,6 +226,8 @@ async function withRetry(fn, retries = 3) {
 
 // ─── Chamada ao Gemini isolada por modelo (permite trocar de modelo em fallback) ──
 
+const MAX_RODADAS_FUNCAO = 4; // evita loop infinito se o modelo encadear chamadas de função
+
 async function gerarResposta(modelName, systemPrompt, history, userMessage, phone, clienteId) {
   const model = getClient().getGenerativeModel({
     model: modelName,
@@ -186,15 +237,15 @@ async function gerarResposta(modelName, systemPrompt, history, userMessage, phon
 
   const chat = model.startChat({ history });
 
-  const result1 = await chat.sendMessage(userMessage);
-  const response1 = result1.response;
-
-  let finalText;
+  let response = (await chat.sendMessage(userMessage)).response;
   let handover = false;
 
-  const fnCalls = response1.functionCalls ? response1.functionCalls() : [];
+  // Encadeia rodadas de function calling (ex.: agendar_reuniao + salvar_memoria na mesma
+  // resposta) até o modelo devolver texto puro, em vez de assumir que 1 rodada basta.
+  for (let rodada = 0; rodada < MAX_RODADAS_FUNCAO; rodada++) {
+    const fnCalls = response.functionCalls ? response.functionCalls() : [];
+    if (!fnCalls || fnCalls.length === 0) break;
 
-  if (fnCalls && fnCalls.length > 0) {
     const toolResponses = [];
     for (const fn of fnCalls) {
       const fnResult = await executarFuncao(fn.name, fn.args, phone, clienteId);
@@ -204,10 +255,17 @@ async function gerarResposta(modelName, systemPrompt, history, userMessage, phon
       });
     }
 
-    const result2 = await chat.sendMessage(toolResponses);
-    finalText = result2.response.text();
-  } else {
-    finalText = response1.text();
+    response = (await chat.sendMessage(toolResponses)).response;
+  }
+
+  // Garante que o cliente nunca fique sem resposta: se o modelo não devolveu texto
+  // (ex.: só encadeou funções sem comentar o resultado), usa um fallback.
+  let finalText = '';
+  try {
+    finalText = response.text() || '';
+  } catch (_) { /* resposta sem parte de texto */ }
+  if (!finalText.trim()) {
+    finalText = 'Combinado! Se precisar de mais alguma coisa, é só me chamar por aqui. 🙂';
   }
 
   return { text: finalText, handover };
