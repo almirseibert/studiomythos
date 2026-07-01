@@ -34,19 +34,25 @@ async function atualizarModo(phone, modo, vendedorId = null) {
   );
 }
 
-async function listarConversas() {
-  const [rows] = await db.query(`
+async function listarConversas(vendedorId = null, soAdmin = false) {
+  let sql = `
     SELECT
       wc.id, wc.phone, wc.nome_contato, wc.modo, wc.ultima_mensagem_em,
-      wc.cliente_id, c.empresa,
+      wc.cliente_id, c.empresa, c.vendedor_id AS cliente_vendedor_id,
       u.nome AS vendedor_nome,
-      (SELECT conteudo FROM whatsapp_mensagens wm WHERE wm.conversa_id = wc.id ORDER BY wm.criado_em DESC LIMIT 1) AS ultima_mensagem,
+      (SELECT conteudo  FROM whatsapp_mensagens wm WHERE wm.conversa_id = wc.id ORDER BY wm.criado_em DESC LIMIT 1) AS ultima_mensagem,
       (SELECT remetente FROM whatsapp_mensagens wm WHERE wm.conversa_id = wc.id ORDER BY wm.criado_em DESC LIMIT 1) AS ultimo_remetente
     FROM whatsapp_conversas wc
     LEFT JOIN clientes c ON c.id = wc.cliente_id
     LEFT JOIN usuarios u ON u.id = wc.vendedor_responsavel_id
-    ORDER BY COALESCE(wc.ultima_mensagem_em, wc.criado_em) DESC
-  `);
+  `;
+  const params = [];
+  if (!soAdmin && vendedorId) {
+    sql += ` WHERE (wc.vendedor_responsavel_id = ? OR c.vendedor_id = ?)`;
+    params.push(vendedorId, vendedorId);
+  }
+  sql += ` ORDER BY COALESCE(wc.ultima_mensagem_em, wc.criado_em) DESC`;
+  const [rows] = await db.query(sql, params);
   return rows;
 }
 
@@ -186,8 +192,12 @@ async function listarAgendamentos(filtros = {}) {
     WHERE 1=1
   `;
   const params = [];
-  if (filtros.status) { sql += ' AND wa.status = ?'; params.push(filtros.status); }
-  if (filtros.phone)  { sql += ' AND wa.phone = ?';  params.push(filtros.phone); }
+  if (filtros.status)     { sql += ' AND wa.status = ?'; params.push(filtros.status); }
+  if (filtros.phone)      { sql += ' AND wa.phone = ?';  params.push(filtros.phone); }
+  if (filtros.vendedor_id) {
+    sql += ` AND (wa.vendedor_id = ? OR wa.cliente_id IN (SELECT id FROM clientes WHERE vendedor_id = ?))`;
+    params.push(filtros.vendedor_id, filtros.vendedor_id);
+  }
   sql += ' ORDER BY wa.data_hora ASC';
   const [rows] = await db.query(sql, params);
   return rows;

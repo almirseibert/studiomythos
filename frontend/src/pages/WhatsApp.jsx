@@ -45,7 +45,9 @@ function fmtTime(d) {
   return dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 }
 
-function phoneDisplay(p) { return (p || '').replace('@c.us', '').replace('@g.us', ''); }
+function phoneDisplay(p) {
+  return (p || '').replace(/@c\.us$/, '').replace(/@g\.us$/, '').replace(/@lid$/, '');
+}
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
 
@@ -373,10 +375,10 @@ function AbaConexao({ botStatus, qrImg, loadingQR, loadingRestart, onRestart, on
 
 // ─── Página Principal ─────────────────────────────────────────────────────────
 
-const TABS = [
+const TABS_ALL = [
   { id: 'conversas', label: 'Conversas', icon: MessageSquare },
   { id: 'agenda',    label: 'Agenda',    icon: Calendar },
-  { id: 'conexao',   label: 'Conexão',   icon: Smartphone },
+  { id: 'conexao',   label: 'Conexão',   icon: Smartphone }, // apenas admin
 ];
 
 export default function WhatsApp() {
@@ -390,10 +392,13 @@ export default function WhatsApp() {
   const [conversaSelecionada, setConversaSelecionada] = useState(null);
   const [toast, setToast] = useState(null);
 
+  const TABS = isAdmin() ? TABS_ALL : TABS_ALL.filter(t => t.id !== 'conexao');
+
   useEffect(() => {
-    if (!isAdmin()) { navigate('/dashboard'); return; }
+    // Lê ?phone= da URL para abrir conversa diretamente (vindo do LeadDetail)
+    const phoneParam = new URLSearchParams(window.location.search).get('phone');
     fetchStatus();
-    fetchConversas();
+    fetchConversas(phoneParam || null);
     const t = setInterval(() => { fetchStatus(); fetchConversas(); }, 8000);
     return () => clearInterval(t);
   }, []);
@@ -421,10 +426,31 @@ export default function WhatsApp() {
     finally { setLoadingQR(false); }
   }, []);
 
-  const fetchConversas = useCallback(async () => {
+  const fetchConversas = useCallback(async (autoOpenPhone = null) => {
     try {
       const { data } = await api.get('/whatsapp/conversas');
-      if (data.success) setConversas(data.data);
+      if (data.success) {
+        setConversas(data.data);
+        if (autoOpenPhone) {
+          const digits = autoOpenPhone.replace(/\D/g, '');
+          const found = data.data.find(c => c.phone.replace(/\D/g, '').includes(digits.slice(-9)));
+          if (found) {
+            setConversaSelecionada(found);
+          } else {
+            iniciarConversa(autoOpenPhone);
+          }
+        }
+      }
+    } catch (_) {}
+  }, []);
+
+  const iniciarConversa = useCallback(async (phone) => {
+    try {
+      const { data } = await api.post('/whatsapp/conversas/iniciar', { phone });
+      if (data.success) {
+        setConversaSelecionada(data.data);
+        fetchConversas();
+      }
     } catch (_) {}
   }, []);
 
@@ -460,18 +486,18 @@ export default function WhatsApp() {
 
         {/* Tabs */}
         <div className="bg-white border-b border-slate-200 px-6 flex gap-1 shrink-0">
-          {TABS.map(t => {
-            const Icon = t.icon;
-            const isActive = tab === t.id;
-            const badge = t.id === 'conversas' && conversasHandover.length > 0 ? conversasHandover.length : null;
+          {TABS.map(tabItem => {
+            const Icon = tabItem.icon;
+            const isActive = tab === tabItem.id;
+            const badge = tabItem.id === 'conversas' && conversasHandover.length > 0 ? conversasHandover.length : null;
             return (
               <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
+                key={tabItem.id}
+                onClick={() => setTab(tabItem.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition ${isActive ? 'border-violet-600 text-violet-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
               >
                 <Icon size={16} />
-                {t.label}
+                {tabItem.label}
                 {badge && <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{badge}</span>}
               </button>
             );

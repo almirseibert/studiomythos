@@ -203,10 +203,11 @@ export default function LeadDetail() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-medium text-slate-700">{lead.telefone || '—'}</p>
                       {phoneToWa(lead.telefone) && (
-                        <a href={phoneToWa(lead.telefone)} target="_blank" rel="noreferrer"
+                        <button
+                          onClick={() => navigate(`/whatsapp?phone=${lead.telefone.replace(/\D/g, '')}`)}
                           className="flex items-center gap-1 bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full transition-colors">
-                          <MessageCircle size={11} /> WhatsApp
-                        </a>
+                          <MessageCircle size={11} /> Chat
+                        </button>
                       )}
                     </div>
                   </div>
@@ -317,10 +318,11 @@ export default function LeadDetail() {
                           <input value={c.telefone || ''} onChange={e => updateContato(i, 'telefone', e.target.value)} placeholder="Telefone"
                             className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 pr-8 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
                           {phoneToWa(c.telefone) && (
-                            <a href={phoneToWa(c.telefone)} target="_blank" rel="noreferrer"
+                            <button
+                              onClick={() => navigate(`/whatsapp?phone=${c.telefone.replace(/\D/g, '')}`)}
                               className="absolute right-2 text-emerald-500 hover:text-emerald-700">
                               <MessageCircle size={14} />
-                            </a>
+                            </button>
                           )}
                         </div>
                         <input value={c.email || ''} onChange={e => updateContato(i, 'email', e.target.value)} placeholder="E-mail"

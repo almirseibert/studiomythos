@@ -4,6 +4,9 @@ const whatsappService = require('../services/whatsappService');
 const geminiService = require('../services/geminiService');
 const conversaService = require('../services/conversaService');
 
+const SUPER_ADMIN = 'almir.seibert@gmail.com';
+const isAdmin = (u) => u && (u.papel === 'admin' || u.email === SUPER_ADMIN);
+
 // ─── Bot ────────────────────────────────────────────────────────────────────
 
 router.get('/status', (req, res) => {
@@ -27,7 +30,24 @@ router.post('/restart', async (req, res) => {
 
 router.get('/conversas', async (req, res) => {
   try {
-    res.json({ success: true, data: await conversaService.listarConversas() });
+    const admin = isAdmin(req.usuario);
+    const vendedorId = admin ? null : (req.usuario?.id || null);
+    res.json({ success: true, data: await conversaService.listarConversas(vendedorId, admin) });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// Inicia ou recupera uma conversa pelo número de telefone (usado ao clicar no telefone de um lead)
+router.post('/conversas/iniciar', async (req, res) => {
+  const { phone } = req.body;
+  if (!phone) return res.status(400).json({ success: false, error: 'phone obrigatório' });
+  try {
+    const digits = phone.replace(/\D/g, '');
+    const phoneId = `${digits.startsWith('55') ? digits : '55' + digits}@c.us`;
+    const conversa = await conversaService.obterOuCriarConversa(phoneId);
+    // Assume atendimento humano para que o vendedor possa digitar imediatamente
+    await conversaService.atualizarModo(phoneId, 'humano_ativo', req.usuario?.id || null);
+    const [atualizada] = await require('../config/db').query('SELECT * FROM whatsapp_conversas WHERE id = ?', [conversa.id]);
+    res.json({ success: true, data: atualizada[0] });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
@@ -93,6 +113,7 @@ router.get('/agendamentos', async (req, res) => {
     const filtros = {};
     if (req.query.status) filtros.status = req.query.status;
     if (req.query.phone)  filtros.phone  = req.query.phone;
+    if (!isAdmin(req.usuario) && req.usuario?.id) filtros.vendedor_id = req.usuario.id;
     res.json({ success: true, data: await conversaService.listarAgendamentos(filtros) });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });

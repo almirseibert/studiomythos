@@ -113,13 +113,27 @@ async function initialize() {
   }
 }
 
+// ─── Normaliza o phone ID para @c.us (versões novas usam @lid) ───────────
+
+async function resolvePhone(msgFrom, getContactFn) {
+  if (msgFrom.endsWith('@c.us') || msgFrom.endsWith('@g.us')) return msgFrom;
+  try {
+    const contact = await getContactFn();
+    if (contact?.id?.user) return `${contact.id.user}@c.us`;
+  } catch (_) {}
+  // Fallback: extrai dígitos e monta @c.us
+  const digits = msgFrom.replace(/\D/g, '');
+  return digits ? `${digits}@c.us` : msgFrom;
+}
+
 // ─── Mensagem RECEBIDA (de contato externo) ────────────────────────────────
 
 async function onIncoming(msg) {
   if (msg.fromMe) return;
   if (msg.from.endsWith('@g.us')) return; // ignora grupos
 
-  const phone = msg.from;
+  // whatsapp-web.js >= 1.26 pode retornar @lid em vez de @c.us
+  const phone = await resolvePhone(msg.from, () => msg.getContact());
   const text = (msg.body || '').trim();
   if (!text) return;
 
@@ -173,7 +187,7 @@ async function onMessageCreate(msg) {
   if (botSentIds.has(msg.id.id)) return;
 
   // Foi digitado por um humano no dispositivo — assume o atendimento
-  const phone = msg.to; // destinatário da mensagem enviada
+  const phone = await resolvePhone(msg.to, () => client.getContactById(msg.to));
   const text = (msg.body || '').trim();
   if (!text) return;
 
