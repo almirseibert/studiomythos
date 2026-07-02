@@ -34,6 +34,61 @@ do WhatsApp Web via Puppeteer/Chromium) — ver o repositório para referência 
 5. Se um vendedor digita direto no celular → evento `message_create` (`onMessageCreate`) detecta que o `id` **não** está em `botSentIds` → assume que foi humano → muda `modo` para `humano_ativo`, cancela qualquer buffer pendente daquele número e limpa o cache do Gemini
 6. Vendedor pode devolver o atendimento à IA pelo painel (`whatsappRoutes.js`)
 
+## ⚠️ Risco de bloqueio/restrição pelo WhatsApp
+
+O `whatsapp-web.js` é **não-oficial**: automatiza a sessão real do WhatsApp Web via Puppeteer, fora
+dos termos de uso do WhatsApp. O WhatsApp tem detecção de automação por comportamento (ML) que pode
+restringir a conta (temporário) ou banir (recorrente), independente do que gera o texto por trás —
+não é algo específico do Gemini. Sinais que aumentam o risco: alto volume de mensagens em pouco
+tempo, iniciar conversas com quem nunca falou com você antes (cold outreach), respostas muito
+rápidas/uniformes, reconexões frequentes, denúncias de destinatários.
+
+Mitigações já implementadas em `whatsappService.js` (2026-07-01/02, após um bloqueio real de 24h):
+- Bot **nunca inicia conversa** — só responde quem mandou mensagem primeiro (confirmado: não existe
+  disparo em massa nem contato frio em nenhum lugar do código)
+- **Limitador global de envio** (`agendarEnvioGlobal`): espaça respostas entre CONVERSAS DIFERENTES
+  (2-5s), evitando rajada de várias mensagens saindo ao mesmo tempo quando vários buffers de debounce
+  fecham juntos
+- **Cooldown de restart** (`RESTART_COOLDOWN_MS`, 30s): impede reconexões em sequência rápida, mesmo
+  clicando o botão "Reiniciar" do painel várias vezes — reconexão frequente (login/logout) é sinal de
+  automação
+- **Whitelist de chat 1:1** (`onIncoming`/`onMessageCreate`): responde só a `@c.us`/`@lid`. Antes só
+  excluía grupos (`@g.us`) e status — listas de transmissão (`@broadcast`) e canais/newsletters
+  (`@newsletter`) não eram filtrados, e o bot poderia responder automaticamente nesses contextos
+- **Bug corrigido em `onMessageCreate`**: o filtro de grupo checava `msg.from.endsWith('@g.us')`, mas
+  em mensagem enviada (`fromMe`) `from` é sempre o próprio número — o destino real está em `msg.to`.
+  Na prática o filtro nunca funcionava; mensagens de grupo enviadas do celular criavam conversas
+  fantasma no banco com o JID do grupo como se fosse telefone
+- **Timing randomizado**: janela de debounce (18-23s) e "digitando..." (2.5-4.5s) deixaram de ser
+  valores fixos — um delay idêntico em toda resposta é, por si só, uma assinatura de bot
+- **`chat.sendSeen()` antes de responder**: marca a mensagem como lida antes de digitar, seguindo a
+  sequência humana (ler → digitar → enviar) em vez da resposta aparecer do nada após o silêncio
+- **Limpeza de buffers em `disconnected`**: evita que buffers pendentes tentem enviar contra um
+  client nulo depois de uma queda de sessão
+- **Resposta dividida em bolhas** (`dividirEmBolhas`, 2026-07-02): a IA já é instruída a responder em
+  no máximo 3 parágrafos; em vez de mandar tudo como um bloco único de texto, cada parágrafo agora
+  vira uma mensagem separada, com seu próprio "digitando..." antes — mais parecido com alguém
+  digitando no celular. Limitado a 3 bolhas por resposta (parágrafos extras são agrupados na última)
+  pra não fragmentar demais uma lista longa
+
+Fatores de risco que **não têm mitigação de código** (nível de infraestrutura, fora do repo):
+- IP do servidor: contas conectadas a partir de IP de datacenter (comum em hospedagem como
+  EasyPanel/AWS/DigitalOcean) tendem a ser vistas como mais suspeitas que IP residencial/móvel
+- Redeploy sem parar o container anterior primeiro pode deixar duas instâncias autenticadas na
+  mesma sessão do WhatsApp ao mesmo tempo — conferir isso no EasyPanel antes de cada deploy
+
+Deliberadamente **não implementado**: técnicas de disfarce de fingerprint do Puppeteer (ex.:
+plugins "stealth" pra esconder `navigator.webdriver`/sinais de automação do navegador). Isso seria
+burlar ativamente o sistema anti-abuso do WhatsApp, não só reduzir comportamento de bot — diferente
+das mitigações acima, que só fazem o bot se comportar de forma mais parecida com um humano de
+verdade. Se o bloqueio voltar a acontecer mesmo com essas mitigações, a via seria migrar de vez pro
+Cloud API, não insistir em mascarar a automação.
+
+Nenhuma mitigação elimina o risco por completo enquanto o bot rodar sobre `whatsapp-web.js` — é uma
+limitação estrutural da abordagem. A solução sem risco de bloqueio é migrar pra WhatsApp Business
+Platform (Cloud API, oficial da Meta), que exige verificação de empresa e reescrita do
+`whatsappService.js` (webhooks + Graph API em vez de eventos Puppeteer).
+
 ## Filtro de grupos e status (stories)
 
 `onIncoming` e `onMessageCreate` ignoram:

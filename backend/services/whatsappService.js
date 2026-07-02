@@ -101,6 +101,9 @@ async function initialize() {
     client.on('disconnected', (reason) => {
       console.warn('⚠️  WhatsApp: desconectado —', reason);
       botStatus = 'desconectado'; isInitializing = false; client = null;
+      // Evita que buffers pendentes tentem enviar contra um client nulo depois da queda
+      for (const buffer of bufferPorTelefone.values()) { if (buffer.timer) clearTimeout(buffer.timer); }
+      bufferPorTelefone.clear();
     });
 
     // Mensagens recebidas de outros contatos
@@ -129,12 +132,36 @@ async function resolvePhone(msgFrom, getContactFn) {
   return digits ? `${digits}@c.us` : msgFrom;
 }
 
+// ─── Limitador global de envio ─────────────────────────────────────────────
+// Espaça as respostas automáticas do bot ENTRE CONVERSAS DIFERENTES, não só
+// dentro da mesma. Sem isso, se vários buffers de debounce fecharem ao mesmo
+// tempo, o bot dispararia várias mensagens em segundos — um dos sinais mais
+// fortes de automação para os sistemas antispam do WhatsApp.
+
+const INTERVALO_MIN_MS = 2000;
+const INTERVALO_MAX_MS = 5000;
+let filaEnvioGlobal = Promise.resolve();
+let ultimoEnvioGlobal = 0;
+
+function agendarEnvioGlobal(fn) {
+  const tarefa = filaEnvioGlobal.then(async () => {
+    const espera = INTERVALO_MIN_MS + Math.random() * (INTERVALO_MAX_MS - INTERVALO_MIN_MS);
+    const decorrido = Date.now() - ultimoEnvioGlobal;
+    if (decorrido < espera) await sleep(espera - decorrido);
+    ultimoEnvioGlobal = Date.now();
+    return fn();
+  });
+  // A fila sempre segue adiante — uma falha numa tarefa não trava as próximas
+  filaEnvioGlobal = tarefa.then(() => {}, () => {});
+  return tarefa;
+}
+
 // ─── Envia resposta como bot, protegendo contra a corrida do message_create ─
 
 async function enviarResposta(phone, text) {
   botSendingTo.add(phone);
   try {
-    const sentMsg = await client.sendMessage(phone, text);
+    const sentMsg = await agendarEnvioGlobal(() => client.sendMessage(phone, text));
     botSentIds.add(sentMsg.id.id);
     if (botSentIds.size > MAX_BOT_IDS) {
       const [first] = botSentIds; botSentIds.delete(first);
@@ -147,12 +174,34 @@ async function enviarResposta(phone, text) {
 
 // ─── Agrupa mensagens rápidas do cliente antes de responder ────────────────
 // Cada mensagem nova reinicia a janela de espera (debounce). Só depois de
-// DEBOUNCE_MS de silêncio a IA processa TODAS as mensagens acumuladas como um
-// único contexto, mostra "digitando..." por TYPING_MS e então envia a resposta.
+// ~20s de silêncio a IA processa TODAS as mensagens acumuladas como um único
+// contexto, mostra "digitando..." por alguns segundos e então envia a resposta.
+// As janelas usam um intervalo (não um valor fixo): timing idêntico em toda
+// resposta é, por si só, uma assinatura de automação.
 
-const DEBOUNCE_MS = 20000;
-const TYPING_MS = 3000;
+const DEBOUNCE_MIN_MS = 18000;
+const DEBOUNCE_MAX_MS = 23000;
+const TYPING_MIN_MS = 2500;
+const TYPING_MAX_MS = 4500;
 const bufferPorTelefone = new Map(); // phone → { textos: string[], timer, ultimoMsg }
+
+function tempoAleatorio(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+// ─── Divide a resposta em "bolhas" separadas, como um humano digitaria ────
+// Gemini já é instruído a escrever no máximo 3 parágrafos; mandar tudo como um bloco
+// único de texto é menos natural do que separar por parágrafo em mensagens distintas,
+// cada uma com seu próprio "digitando..." — mais parecido com alguém no celular.
+const MAX_BOLHAS = 3;
+
+function dividirEmBolhas(text) {
+  const partes = text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+  if (partes.length === 0) return [text.trim()];
+  if (partes.length <= MAX_BOLHAS) return partes;
+  // Excesso de quebras (ex.: lista longa) — junta o resto na última bolha em vez de fragmentar demais
+  return [...partes.slice(0, MAX_BOLHAS - 1), partes.slice(MAX_BOLHAS - 1).join('\n\n')];
+}
 
 function enfileirarMensagem(phone, text, msg) {
   let buffer = bufferPorTelefone.get(phone);
@@ -166,7 +215,7 @@ function enfileirarMensagem(phone, text, msg) {
   if (buffer.timer) clearTimeout(buffer.timer);
   buffer.timer = setTimeout(() => {
     processarBuffer(phone).catch(err => console.error('[WA] Erro ao processar buffer:', err.message));
-  }, DEBOUNCE_MS);
+  }, tempoAleatorio(DEBOUNCE_MIN_MS, DEBOUNCE_MAX_MS));
 }
 
 async function processarBuffer(phone) {
@@ -187,15 +236,24 @@ async function processarBuffer(phone) {
     const resultado = await geminiService.processMessage(phone, mensagemCombinada);
     if (!resultado) return;
 
-    // Mostra "digitando..." por alguns segundos antes de enviar
+    // Marca como lida antes de responder — sequência humana (ler → digitar → enviar)
     try {
       const chat = await buffer.ultimoMsg.getChat();
-      await chat.sendStateTyping();
+      await chat.sendSeen();
     } catch (_) {}
-    await sleep(TYPING_MS);
 
-    const sentMsg = await enviarResposta(phone, resultado.text);
-    await conversaService.salvarMensagem(phone, 'enviada', 'ia', resultado.text, sentMsg.id.id);
+    // Envia cada bolha com seu próprio "digitando...", em vez de um bloco único de texto
+    let sentMsg = null;
+    for (const bolha of dividirEmBolhas(resultado.text).filter(Boolean)) {
+      try {
+        const chat = await buffer.ultimoMsg.getChat();
+        await chat.sendStateTyping();
+      } catch (_) {}
+      await sleep(tempoAleatorio(TYPING_MIN_MS, TYPING_MAX_MS));
+
+      sentMsg = await enviarResposta(phone, bolha);
+      await conversaService.salvarMensagem(phone, 'enviada', 'ia', bolha, sentMsg.id.id);
+    }
 
     if (resultado.handover) {
       console.log(`🔔 [WA] Handover para humano — ${phone}`);
@@ -222,10 +280,13 @@ async function processarBuffer(phone) {
 
 async function onIncoming(msg) {
   if (msg.fromMe) return;
-  if (msg.isStatus || msg.from === 'status@broadcast') return; // ignora status/stories públicos de contatos
-  if (msg.from.endsWith('@g.us')) return; // ignora grupos
+  if (msg.isStatus) return; // ignora status/stories públicos de contatos
+  // Só responde chat 1:1 de verdade (@c.us ou @lid) — bloqueia por padrão qualquer coisa
+  // fora desse whitelist: grupos (@g.us), listas de transmissão (@broadcast), canais/newsletters
+  // (@newsletter) etc. Responder automaticamente nesses contextos é o tipo de comportamento que
+  // mais pesa na detecção de spam/automação do WhatsApp.
+  if (!msg.from.endsWith('@c.us') && !msg.from.endsWith('@lid')) return;
 
-  // whatsapp-web.js >= 1.26 pode retornar @lid em vez de @c.us
   const phone = await resolvePhone(msg.from, () => msg.getContact());
   const text = (msg.body || '').trim();
   if (!text) return;
@@ -254,8 +315,11 @@ async function onIncoming(msg) {
 
 async function onMessageCreate(msg) {
   if (!msg.fromMe) return;
-  if (msg.isStatus || msg.to === 'status@broadcast') return; // ignora postagem de status próprio
-  if (msg.from.endsWith('@g.us')) return;
+  if (msg.isStatus) return; // ignora postagem de status próprio
+  // Em mensagens enviadas (fromMe), o destino está em `msg.to` — não em `msg.from` (que é
+  // sempre o próprio número). Checar `msg.from` aqui nunca filtrava grupo/broadcast/newsletter
+  // de verdade; corrigido para o mesmo whitelist de chat 1:1 usado em onIncoming.
+  if (!msg.to.endsWith('@c.us') && !msg.to.endsWith('@lid')) return;
 
   // Se o ID está no set, foi enviado pelo bot — ignorar
   if (botSentIds.has(msg.id.id)) return;
@@ -311,8 +375,20 @@ async function sendMessage(phone, text, vendedorId = null) {
 }
 
 // ─── Restart ───────────────────────────────────────────────────────────────
+// Reconexões frequentes (vários login/logout em sequência) são, por si só, um
+// padrão associado a automação — por isso o restart tem um período mínimo
+// entre chamadas, mesmo que o botão do painel seja clicado várias vezes.
+
+const RESTART_COOLDOWN_MS = 30000;
+let ultimoRestartEm = 0;
 
 async function restart() {
+  const decorrido = Date.now() - ultimoRestartEm;
+  if (decorrido < RESTART_COOLDOWN_MS) {
+    throw new Error(`Aguarde ${Math.ceil((RESTART_COOLDOWN_MS - decorrido) / 1000)}s antes de reiniciar novamente`);
+  }
+  ultimoRestartEm = Date.now();
+
   if (client) { try { await client.destroy(); } catch (_) {} client = null; }
   botStatus = 'desconectado'; isInitializing = false; qrData = null;
   botSentIds.clear();
