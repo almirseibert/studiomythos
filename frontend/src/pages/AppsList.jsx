@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Smartphone, ShieldCheck, FileText, LifeBuoy, Car, Sparkles, Gauge, MonitorPlay } from 'lucide-react';
+import { ArrowRight, Smartphone, ShieldCheck, FileText, LifeBuoy, Car, Sparkles, Gauge, MonitorPlay, Flower2, Heart, Video } from 'lucide-react';
 import { PublicHeader, PublicFooter } from '../components/SiteChrome';
 import { apps } from '../data/apps';
 import { MARCA } from '../data/capacetes';
@@ -57,6 +57,28 @@ export default function AppsList() {
               <DarkBadge icon={Gauge} label="Alta performance" />
             </div>
             <span className="inline-flex items-center gap-1.5 font-semibold text-sm group-hover:gap-2.5 transition-all" style={{ color: '#FF1E3C' }}>
+              Abrir demonstração <ArrowRight size={16} />
+            </span>
+          </a>
+          {/* Destaque: página de demonstração — Yoga Patricia Pedotte (site estático) */}
+          <a href="/yoga-patricia-pedotte/index.html" target="_blank" rel="noopener noreferrer" className="group relative overflow-hidden rounded-2xl p-6 text-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 md:col-span-2 lg:col-span-1" style={{ background: 'linear-gradient(135deg, #2E2A22, #14120E)' }}>
+            <span className="pointer-events-none absolute -right-8 -top-8 w-32 h-32 rounded-full blur-2xl opacity-40" style={{ background: '#D98A3D' }} />
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-extrabold text-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #D98A3D, #7A5220)' }}>
+                <Flower2 size={26} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold leading-tight">Yoga Patricia Pedotte</h3>
+                <p className="text-xs text-white/60">Página de demonstração · Landing page</p>
+              </div>
+            </div>
+            <p className="text-sm text-white/85 leading-relaxed mb-4 min-h-[40px]">Landing page de captação de alunos para as aulas de yoga da Patricia Pedotte: vídeos em destaque, depoimentos e chamadas diretas para agendamento via WhatsApp, com foco em conversão.</p>
+            <div className="flex flex-wrap gap-1.5 mb-5">
+              <DarkBadge icon={Video} label="Vídeos em destaque" />
+              <DarkBadge icon={Heart} label="Depoimentos" />
+              <DarkBadge icon={MonitorPlay} label="CTA via WhatsApp" />
+            </div>
+            <span className="inline-flex items-center gap-1.5 font-semibold text-sm group-hover:gap-2.5 transition-all" style={{ color: '#D98A3D' }}>
               Abrir demonstração <ArrowRight size={16} />
             </span>
           </a>
