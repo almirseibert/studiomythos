@@ -19,6 +19,7 @@ import PersonalizarCapacete from './pages/PersonalizarCapacete';
 import TrabalheConosco from './pages/TrabalheConosco';
 import CadastroCurriculo from './pages/CadastroCurriculo';
 import ExclusaoConta from './pages/ExclusaoConta';
+import FloriculturaModelo from './pages/FloriculturaModelo';
 import Administracao from './pages/Administracao';
 import AdminCurriculos from './pages/AdminCurriculos';
 import AdminOrcamentos from './pages/AdminOrcamentos';
@@ -44,6 +45,7 @@ export default function App() {
         <Route path="/trabalhe-conosco" element={<TrabalheConosco />} />
         <Route path="/trabalhe-conosco/cadastro" element={<CadastroCurriculo />} />
         <Route path="/apps/exclusao-conta" element={<ExclusaoConta />} />
+        <Route path="/modelos/floricultura" element={<FloriculturaModelo />} />
 
         <Route path="/dashboard" element={<Protegida><Dashboard /></Protegida>} />
         <Route path="/prospeccao" element={<Protegida><Prospeccao /></Protegida>} />

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Smartphone, ShieldCheck, FileText, LifeBuoy, Car, Sparkles, Gauge, MonitorPlay, Flower2, Heart, Video } from 'lucide-react';
+import { ArrowRight, Smartphone, ShieldCheck, FileText, LifeBuoy, Car, Sparkles, Gauge, MonitorPlay, Flower2, Heart, Video, MousePointer2, Wind } from 'lucide-react';
 import { PublicHeader, PublicFooter } from '../components/SiteChrome';
 import { apps } from '../data/apps';
 import { MARCA } from '../data/capacetes';
@@ -82,6 +82,28 @@ export default function AppsList() {
               Abrir demonstração <ArrowRight size={16} />
             </span>
           </a>
+          {/* Destaque: página modelo de demonstração — Floricultura (scroll-driven) */}
+          <Link to="/modelos/floricultura" className="group relative overflow-hidden rounded-2xl p-6 text-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 md:col-span-2 lg:col-span-1" style={{ background: 'linear-gradient(135deg, #1F4A3A, #14342A)' }}>
+            <span className="pointer-events-none absolute -right-8 -top-8 w-32 h-32 rounded-full blur-2xl opacity-40" style={{ background: '#E7B4C2' }} />
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #E7B4C2, #C9A24B)' }}>
+                <Flower2 size={26} className="text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold leading-tight">Mythos Floricultura</h3>
+                <p className="text-xs text-white/60">Página exemplo · Scroll-driven</p>
+              </div>
+            </div>
+            <p className="text-sm text-white/85 leading-relaxed mb-4 min-h-[40px]">Página exemplo de floricultura: landing imersiva controlada pelo scroll, onde a câmera atravessa um portal floral e emerge num jardim, com textos em efeito scramble, fotos reais e cards de vidro. Um modelo do que criamos para marcas que querem encantar.</p>
+            <div className="flex flex-wrap gap-1.5 mb-5">
+              <DarkBadge icon={MousePointer2} label="Scroll-driven" />
+              <DarkBadge icon={Wind} label="Animações" />
+              <DarkBadge icon={Sparkles} label="Estética editorial" />
+            </div>
+            <span className="inline-flex items-center gap-1.5 font-semibold text-sm group-hover:gap-2.5 transition-all" style={{ color: '#E7B4C2' }}>
+              Abrir página modelo <ArrowRight size={16} />
+            </span>
+          </Link>
           {apps.map((app) => (
             <Link key={app.slug} to={`/apps/${app.slug}`} className="group bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center gap-4 mb-4">
