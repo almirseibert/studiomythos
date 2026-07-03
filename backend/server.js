@@ -12,6 +12,7 @@ const relatorioRoutes = require('./routes/relatorioRoutes');
 const publicoRoutes = require('./routes/publicoRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const whatsappRoutes = require('./routes/whatsappRoutes');
+const whatsappWebhookRoutes = require('./routes/whatsappWebhookRoutes');
 const verificarToken = require('./middlewares/authMiddleware');
 const exigirAdmin = require('./middlewares/adminMiddleware');
 
@@ -34,7 +35,15 @@ app.use(cors({
 app.options('*', cors({
     origin: 'https://studiomythos.com.br',
 }));
-app.use(express.json());
+// Guarda o corpo cru (Buffer) em req.rawBody — necessário para validar a
+// assinatura HMAC-SHA256 do webhook do WhatsApp Cloud API (x-hub-signature-256).
+app.use(express.json({
+    verify: (req, res, buf) => { req.rawBody = buf; },
+}));
+
+// Webhook PÚBLICO do WhatsApp (chamado pela Meta, sem JWT) — montado ANTES das
+// rotas autenticadas. A autenticidade é garantida por verify_token + HMAC.
+app.use('/api/whatsapp/webhook', whatsappWebhookRoutes);
 
 app.get('/api/status', (req, res) => {
     res.json({ status: 'online', mensagem: 'API Studio Mythos rodando!' });
@@ -278,11 +287,14 @@ app.listen(PORT, '0.0.0.0', async () => {
     const { garantirColunas } = require('./config/migrate');
     await garantirColunas();
 
-    // Inicia o bot WhatsApp se WHATSAPP_ENABLED=true no .env
+    // WhatsApp Cloud API: não há sessão a iniciar (recebe por webhook, envia via
+    // Graph API). Apenas reporta se as credenciais estão configuradas.
     if (process.env.WHATSAPP_ENABLED === 'true') {
         const whatsappService = require('./services/whatsappService');
-        whatsappService.initialize().catch(err => {
-            console.error('⚠️  WhatsApp Bot não pôde ser iniciado automaticamente:', err.message);
-        });
+        if (whatsappService.estaConfigurado()) {
+            console.log('📲 WhatsApp Cloud API configurado — webhook ativo em /api/whatsapp/webhook');
+        } else {
+            console.warn('⚠️  WHATSAPP_ENABLED=true mas faltam variáveis WHATSAPP_* (ACCESS_TOKEN, PHONE_NUMBER_ID, APP_SECRET, VERIFY_TOKEN) — bot inativo');
+        }
     }
 });

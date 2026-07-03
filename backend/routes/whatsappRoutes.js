@@ -8,22 +8,11 @@ const SUPER_ADMIN = 'almir.seibert@gmail.com';
 const isAdmin = (u) => u && (u.papel === 'admin' || u.email === SUPER_ADMIN);
 
 // ─── Bot ────────────────────────────────────────────────────────────────────
+// Cloud API não tem QR nem sessão para reiniciar — o status reflete apenas se
+// as credenciais WHATSAPP_* estão configuradas.
 
 router.get('/status', (req, res) => {
   res.json({ success: true, data: whatsappService.getStatus() });
-});
-
-router.get('/qr', async (req, res) => {
-  const img = await whatsappService.getQRImage();
-  if (!img) return res.status(404).json({ success: false, error: 'QR Code indisponível. Bot já conectado ou ainda não iniciado.' });
-  res.json({ success: true, qr: img });
-});
-
-router.post('/restart', async (req, res) => {
-  try {
-    await whatsappService.restart();
-    res.json({ success: true, message: 'Bot reiniciando...' });
-  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
 // ─── Conversas ──────────────────────────────────────────────────────────────

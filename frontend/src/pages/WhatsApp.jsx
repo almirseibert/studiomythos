@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  MessageSquare, RefreshCw, Send, Wifi, WifiOff, QrCode, Loader2,
+  MessageSquare, RefreshCw, Send, Wifi, WifiOff, Loader2,
   UserCheck, Bot, Calendar, Brain, Trash2, CheckCircle2, XCircle,
   Clock, ChevronRight, User, Smartphone,
 } from 'lucide-react';
@@ -12,13 +12,10 @@ import { useNavigate } from 'react-router-dom';
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const STATUS_BOT = {
-  pronto:        { label: 'Conectado',     dot: 'bg-emerald-500', badge: 'text-emerald-700 bg-emerald-50' },
-  autenticado:   { label: 'Autenticando…', dot: 'bg-yellow-400',  badge: 'text-yellow-700 bg-yellow-50' },
-  aguardando_qr: { label: 'Aguardando QR', dot: 'bg-blue-500',    badge: 'text-blue-700 bg-blue-50' },
-  inicializando: { label: 'Iniciando…',    dot: 'bg-violet-500',  badge: 'text-violet-700 bg-violet-50' },
-  erro:          { label: 'Erro',          dot: 'bg-red-500',     badge: 'text-red-700 bg-red-50' },
-  erro_auth:     { label: 'Erro de auth',  dot: 'bg-red-500',     badge: 'text-red-700 bg-red-50' },
-  desconectado:  { label: 'Desconectado',  dot: 'bg-slate-400',   badge: 'text-slate-600 bg-slate-100' },
+  pronto:          { label: 'Conectado',        dot: 'bg-emerald-500', badge: 'text-emerald-700 bg-emerald-50' },
+  nao_configurado: { label: 'Não configurado',  dot: 'bg-amber-400',   badge: 'text-amber-700 bg-amber-50' },
+  erro:            { label: 'Erro',             dot: 'bg-red-500',     badge: 'text-red-700 bg-red-50' },
+  desconectado:    { label: 'Desconectado',     dot: 'bg-slate-400',   badge: 'text-slate-600 bg-slate-100' },
 };
 
 const MODO_INFO = {
@@ -291,83 +288,53 @@ function AbaAgenda({ showToast }) {
 }
 
 // ─── Aba Conexão / Config ─────────────────────────────────────────────────────
+// Integração agora é via WhatsApp Cloud API (oficial da Meta): não há QR nem
+// sessão. O status reflete apenas se as credenciais WHATSAPP_* estão presentes.
 
-function AbaConexao({ botStatus, qrImg, loadingQR, loadingRestart, onRestart, onRefreshQR, showToast }) {
-  const [phone, setPhone] = useState('');
-  const [msg, setMsg] = useState('');
-  const [sending, setSending] = useState(false);
-
-  const enviarTeste = async (e) => {
-    e.preventDefault();
-    if (!phone || !msg) return;
-    setSending(true);
-    try {
-      await api.post('/whatsapp/conversas/0/mensagem', { mensagem: msg });
-      showToast('Mensagem enviada!');
-      setMsg('');
-    } catch (err) {
-      // Fallback: envio direto
-      try {
-        const conv = await api.get('/whatsapp/conversas').then(r => r.data.data.find(c => phoneDisplay(c.phone) === phone.replace(/\D/g, '')));
-        if (conv) {
-          await api.post(`/whatsapp/conversas/${conv.id}/mensagem`, { mensagem: msg });
-          showToast('Mensagem enviada!');
-          setMsg('');
-        } else showToast('Conversa não encontrada. Envie uma mensagem primeiro.', 'err');
-      } catch { showToast('Erro ao enviar', 'err'); }
-    } finally { setSending(false); }
-  };
+function AbaConexao({ botStatus, onRefresh }) {
+  const configurado = botStatus?.ready;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
       {/* Status */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold text-slate-700">Status da Conexão</h3>
-          <button onClick={onRefreshQR} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition"><RefreshCw size={14} /></button>
+          <h3 className="font-bold text-slate-700">WhatsApp Cloud API</h3>
+          <button onClick={onRefresh} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition"><RefreshCw size={14} /></button>
         </div>
         <div className="flex items-center gap-3">
-          {botStatus?.ready ? <Wifi size={28} className="text-emerald-500" /> : <WifiOff size={28} className="text-slate-300" />}
+          {configurado ? <Wifi size={28} className="text-emerald-500" /> : <WifiOff size={28} className="text-amber-400" />}
           <BotBadge status={botStatus?.status || 'desconectado'} />
         </div>
-        {botStatus?.status === 'aguardando_qr' && (
-          <p className="text-sm text-blue-600 bg-blue-50 rounded-lg px-3 py-2">
-            Escaneie o QR ao lado com o WhatsApp do número que será o bot da empresa.
+        {configurado ? (
+          <div className="text-sm text-slate-600 bg-emerald-50 rounded-lg px-3 py-2 space-y-1">
+            <p>Número (Phone Number ID): <code className="bg-white px-1 rounded">{botStatus?.phoneNumberId || '—'}</code></p>
+            <p>Versão da API: <code className="bg-white px-1 rounded">{botStatus?.apiVersion || '—'}</code></p>
+          </div>
+        ) : (
+          <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-2">
+            Faltam credenciais. Configure as variáveis <code className="bg-white px-1 rounded">WHATSAPP_*</code> no servidor
+            (ver painel ao lado) e reinicie o backend.
           </p>
         )}
-        <button
-          onClick={onRestart}
-          disabled={loadingRestart}
-          className="w-full flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold px-4 py-2.5 rounded-xl transition disabled:opacity-60"
-        >
-          {loadingRestart ? <Loader2 size={15} className="animate-spin" /> : <Smartphone size={15} />}
-          {botStatus?.ready ? 'Reiniciar Bot' : 'Iniciar Bot'}
-        </button>
         <div className="text-xs text-slate-400 space-y-1 pt-2 border-t border-slate-100">
-          <p>• Configure <code className="bg-slate-100 px-1 rounded">WHATSAPP_ENABLED=true</code> para auto-iniciar</p>
-          <p>• Monte o volume <code className="bg-slate-100 px-1 rounded">/app/whatsapp-sessions</code> no Docker para persistir a sessão</p>
-          <p>• No EasyPanel: use "Montagem de Volume" (não Bind Mount) com o path <code className="bg-slate-100 px-1 rounded">/app/whatsapp-sessions</code></p>
+          <p>Automação oficial da Meta — sem risco de banimento por Termos de Serviço.</p>
+          <p>Sem QR Code e sem sessão: o número vive na nuvem da Meta.</p>
         </div>
       </div>
 
-      {/* QR Code */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-center gap-4">
-        <h3 className="font-bold text-slate-700 self-start">QR Code</h3>
-        {loadingQR ? (
-          <Loader2 className="animate-spin text-violet-400" size={36} />
-        ) : qrImg ? (
-          <>
-            <img src={qrImg} alt="QR Code" className="w-44 h-44 rounded-xl border border-slate-200" />
-            <p className="text-xs text-slate-400 text-center">Abra o WhatsApp → Dispositivos conectados → Conectar dispositivo</p>
-          </>
-        ) : (
-          <div className="flex flex-col items-center gap-2 text-slate-200 py-4">
-            <QrCode size={56} />
-            <p className="text-sm text-slate-400 text-center">
-              {botStatus?.ready ? 'Bot conectado — QR desnecessário' : 'Inicie o bot para gerar o QR Code'}
-            </p>
-          </div>
-        )}
+      {/* Setup */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-3">
+        <h3 className="font-bold text-slate-700">Configuração (na Meta)</h3>
+        <ol className="text-sm text-slate-600 space-y-2 list-decimal list-inside">
+          <li>Crie um App em <code className="bg-slate-100 px-1 rounded">developers.facebook.com</code> e adicione o produto <b>WhatsApp</b>.</li>
+          <li>Faça a verificação da empresa e conecte um <b>número novo</b>.</li>
+          <li>Preencha no servidor: <code className="bg-slate-100 px-1 rounded">WHATSAPP_ACCESS_TOKEN</code>, <code className="bg-slate-100 px-1 rounded">WHATSAPP_PHONE_NUMBER_ID</code>, <code className="bg-slate-100 px-1 rounded">WHATSAPP_APP_SECRET</code>, <code className="bg-slate-100 px-1 rounded">WHATSAPP_VERIFY_TOKEN</code>.</li>
+          <li>No painel da Meta, configure o Webhook para:
+            <div className="mt-1 bg-slate-100 rounded px-2 py-1 font-mono text-xs break-all">https://SEU-BACKEND/api/whatsapp/webhook</div>
+            usando o mesmo <code className="bg-slate-100 px-1 rounded">VERIFY_TOKEN</code> e assinando o campo <b>messages</b>.
+          </li>
+        </ol>
       </div>
     </div>
   );
@@ -385,9 +352,6 @@ export default function WhatsApp() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('conversas');
   const [botStatus, setBotStatus] = useState(null);
-  const [qrImg, setQrImg] = useState(null);
-  const [loadingQR, setLoadingQR] = useState(false);
-  const [loadingRestart, setLoadingRestart] = useState(false);
   const [conversas, setConversas] = useState([]);
   const [conversaSelecionada, setConversaSelecionada] = useState(null);
   const [toast, setToast] = useState(null);
@@ -412,18 +376,7 @@ export default function WhatsApp() {
     try {
       const { data } = await api.get('/whatsapp/status');
       setBotStatus(data.data);
-      if (data.data.qrAvailable) fetchQR();
-      else setQrImg(null);
     } catch (_) {}
-  }, []);
-
-  const fetchQR = useCallback(async () => {
-    setLoadingQR(true);
-    try {
-      const { data } = await api.get('/whatsapp/qr');
-      if (data.success) setQrImg(data.qr);
-    } catch (_) { setQrImg(null); }
-    finally { setLoadingQR(false); }
   }, []);
 
   const fetchConversas = useCallback(async (autoOpenPhone = null) => {
@@ -453,16 +406,6 @@ export default function WhatsApp() {
       }
     } catch (_) {}
   }, []);
-
-  const handleRestart = async () => {
-    setLoadingRestart(true);
-    try {
-      await api.post('/whatsapp/restart');
-      showToast('Bot reiniciando…');
-      setTimeout(fetchStatus, 2500);
-    } catch (e) { showToast(e.response?.data?.error || 'Erro ao reiniciar', 'err'); }
-    finally { setLoadingRestart(false); }
-  };
 
   // Separa conversas com mensagem não lida (humano aguardando)
   const conversasHandover = conversas.filter(c => c.modo === 'humano_ativo');
@@ -582,15 +525,7 @@ export default function WhatsApp() {
           {/* ── Tab Conexão ── */}
           {tab === 'conexao' && (
             <div className="p-6 overflow-y-auto h-full custom-scrollbar max-w-3xl mx-auto w-full">
-              <AbaConexao
-                botStatus={botStatus}
-                qrImg={qrImg}
-                loadingQR={loadingQR}
-                loadingRestart={loadingRestart}
-                onRestart={handleRestart}
-                onRefreshQR={fetchStatus}
-                showToast={showToast}
-              />
+              <AbaConexao botStatus={botStatus} onRefresh={fetchStatus} />
             </div>
           )}
         </div>
