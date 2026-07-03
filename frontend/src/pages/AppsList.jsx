@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Smartphone, ShieldCheck, FileText, LifeBuoy } from 'lucide-react';
+import { ArrowRight, Smartphone, ShieldCheck, FileText, LifeBuoy, Car, Sparkles, Gauge, MonitorPlay } from 'lucide-react';
 import { PublicHeader, PublicFooter } from '../components/SiteChrome';
 import { apps } from '../data/apps';
 import { MARCA } from '../data/capacetes';
@@ -38,6 +38,28 @@ export default function AppsList() {
               Personalizar agora <ArrowRight size={16} />
             </span>
           </Link>
+          {/* Destaque: página de demonstração — Mythos Veículos (site estático) */}
+          <a href="/demos/veiculos/index.html" target="_blank" rel="noopener noreferrer" className="group relative overflow-hidden rounded-2xl p-6 text-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 md:col-span-2 lg:col-span-1" style={{ background: 'linear-gradient(135deg, #1A1A1D, #050505)' }}>
+            <span className="pointer-events-none absolute -right-8 -top-8 w-32 h-32 rounded-full blur-2xl opacity-40" style={{ background: '#FF1E3C' }} />
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-extrabold text-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #FF1E3C, #7A1F2B)' }}>
+                <Car size={26} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold leading-tight">Mythos Veículos</h3>
+                <p className="text-xs text-white/60">Página de demonstração · Landing page</p>
+              </div>
+            </div>
+            <p className="text-sm text-white/85 leading-relaxed mb-4 min-h-[40px]">Landing page imersiva para lançamento de veículo esportivo: hero em vídeo com scrub ao rolar, seções cinematográficas, métricas de performance e visual dark com acento neon. Um exemplo real do que entregamos em sites de alto impacto.</p>
+            <div className="flex flex-wrap gap-1.5 mb-5">
+              <DarkBadge icon={MonitorPlay} label="Vídeo imersivo" />
+              <DarkBadge icon={Sparkles} label="Animações" />
+              <DarkBadge icon={Gauge} label="Alta performance" />
+            </div>
+            <span className="inline-flex items-center gap-1.5 font-semibold text-sm group-hover:gap-2.5 transition-all" style={{ color: '#FF1E3C' }}>
+              Abrir demonstração <ArrowRight size={16} />
+            </span>
+          </a>
           {apps.map((app) => (
             <Link key={app.slug} to={`/apps/${app.slug}`} className="group bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center gap-4 mb-4">
@@ -75,6 +97,14 @@ export default function AppsList() {
 function Badge({ icon: Icon, label }) {
   return (
     <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
+      <Icon size={12} /> {label}
+    </span>
+  );
+}
+
+function DarkBadge({ icon: Icon, label }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-white/70 bg-white/10 px-2 py-1 rounded-md">
       <Icon size={12} /> {label}
     </span>
   );

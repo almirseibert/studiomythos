@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "digitalpluss-front",
+      "name": "studio-mythos-front",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "digitalfront", "run", "dev"],
+      "runtimeArgs": ["--prefix", "frontend", "run", "dev"],
       "port": 3000
     }
   ]
