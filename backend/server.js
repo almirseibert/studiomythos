@@ -11,6 +11,8 @@ const financeiroRoutes = require('./routes/financeiroRoutes');
 const relatorioRoutes = require('./routes/relatorioRoutes');
 const publicoRoutes = require('./routes/publicoRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const projetoRoutes = require('./routes/projetoRoutes');
+const projetoController = require('./controllers/projetoController');
 const whatsappRoutes = require('./routes/whatsappRoutes');
 const whatsappWebhookRoutes = require('./routes/whatsappWebhookRoutes');
 const verificarToken = require('./middlewares/authMiddleware');
@@ -48,6 +50,20 @@ app.use('/api/whatsapp/webhook', whatsappWebhookRoutes);
 app.get('/api/status', (req, res) => {
     res.json({ status: 'online', mensagem: 'API Studio Mythos rodando!' });
 });
+
+// ========================================================================
+// SITES PUBLICADOS PELO PAINEL — hospedagem estática de landing pages/sites
+// enviados pelo admin. Servidos publicamente em /sites/<slug>/.
+// ATENÇÃO (produção): o reverse-proxy da frente precisa encaminhar o caminho
+// /sites/ para este backend (hoje ele só encaminha /api). Ver README.
+// ========================================================================
+app.use('/sites', express.static(projetoController.SITES_DIR, {
+    extensions: ['html'],
+    index: 'index.html',
+}));
+
+// Listagem pública dos cards da Central de Aplicativos (sem token).
+app.get('/api/projetos', projetoController.listarPublico);
 
 // ========================================================================
 // SETUP AUTOMÁTICO — cria/recria todo o schema e dados de arranque
@@ -262,6 +278,9 @@ app.use('/api/relatorios', verificarToken, relatorioRoutes);
 app.use('/api/publico', publicoRoutes);
 
 // Administração (token + admin): visualizar currículos e orçamentos
+// Projetos publicados (token + admin): CRUD dos cards + upload dos sites
+app.use('/api/admin/projetos', verificarToken, exigirAdmin, projetoRoutes);
+
 app.use('/api/admin', verificarToken, exigirAdmin, adminRoutes);
 
 // WhatsApp Bot (token + admin): gerenciamento do bot com IA Gemini

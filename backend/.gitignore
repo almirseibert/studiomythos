@@ -12,3 +12,6 @@ npm-debug.log*
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Sites enviados pelo painel (hospedados em runtime, não versionados)
+uploads/

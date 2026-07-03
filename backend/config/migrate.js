@@ -81,6 +81,28 @@ async function garantirColunas() {
     await dbPool.query(CRIAR_ORCAMENTOS);
     console.log('🛠️  Migração: tabelas curriculos e orcamentos garantidas.');
 
+    // ── Projetos publicados pelo painel (landing pages / sites) ─────────────
+    // Cards da Central de Aplicativos gerenciáveis sem mexer no código.
+    // tipo: 'arquivos' (zip/html hospedado em uploads/sites/<slug>) ou 'link' (URL externa).
+    await dbPool.query(`CREATE TABLE IF NOT EXISTS projetos (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      slug VARCHAR(80) NOT NULL UNIQUE,
+      titulo VARCHAR(150) NOT NULL,
+      subtitulo VARCHAR(150),
+      descricao TEXT,
+      cor VARCHAR(20) DEFAULT '#4F46E5',
+      cor_secundaria VARCHAR(20) DEFAULT '#7C3AED',
+      icone VARCHAR(40) DEFAULT 'Globe',
+      tipo ENUM('arquivos','link') DEFAULT 'arquivos',
+      url_externa VARCHAR(500),
+      arquivo_entrada VARCHAR(120) DEFAULT 'index.html',
+      publicado TINYINT DEFAULT 1,
+      ordem INT DEFAULT 0,
+      criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )`);
+    console.log('🛠️  Migração: tabela projetos garantida.');
+
     // ── Tabelas do WhatsApp Bot ─────────────────────────────────────────────
     await dbPool.query(`CREATE TABLE IF NOT EXISTS whatsapp_conversas (
       id INT AUTO_INCREMENT PRIMARY KEY,

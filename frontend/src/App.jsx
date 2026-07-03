@@ -23,6 +23,7 @@ import FloriculturaModelo from './pages/FloriculturaModelo';
 import Administracao from './pages/Administracao';
 import AdminCurriculos from './pages/AdminCurriculos';
 import AdminOrcamentos from './pages/AdminOrcamentos';
+import ProjetosAdmin from './pages/ProjetosAdmin';
 import ScriptsVendas from './pages/ScriptsVendas';
 import WhatsApp from './pages/WhatsApp';
 import { isAuthenticated } from './services/auth';
@@ -59,6 +60,7 @@ export default function App() {
         <Route path="/admin" element={<Protegida><Administracao /></Protegida>} />
         <Route path="/admin/curriculos" element={<Protegida><AdminCurriculos /></Protegida>} />
         <Route path="/admin/orcamentos" element={<Protegida><AdminOrcamentos /></Protegida>} />
+        <Route path="/admin/projetos" element={<Protegida><ProjetosAdmin /></Protegida>} />
         <Route path="/whatsapp" element={<Protegida><WhatsApp /></Protegida>} />
 
         <Route path="*" element={

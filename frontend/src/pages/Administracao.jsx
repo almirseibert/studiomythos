@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Inbox, FileText, Receipt, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
+import { Inbox, FileText, Receipt, ArrowRight, ShieldCheck, Loader2, LayoutTemplate } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import api from '../services/api';
 import { isAdmin } from '../services/auth';
@@ -58,6 +58,14 @@ export default function Administracao() {
                 novos={novosOrcamentos}
                 cor="bg-emerald-50 text-emerald-600"
               />
+              <Link to="/admin/projetos" className="group bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                <div className="flex items-start justify-between">
+                  <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600"><LayoutTemplate size={26} /></div>
+                </div>
+                <h2 className="font-bold text-slate-800 text-lg mt-4">Projetos & Sites</h2>
+                <p className="text-sm text-slate-500 mt-1">Publique landing pages e sites (ZIP/HTML) e crie cards sem mexer no código.</p>
+                <span className="inline-flex items-center gap-1.5 text-indigo-600 font-semibold text-sm mt-3 group-hover:gap-2.5 transition-all">Gerenciar <ArrowRight size={16} /></span>
+              </Link>
             </div>
           )}
         </div>

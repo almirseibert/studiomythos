@@ -1,12 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Smartphone, ShieldCheck, FileText, LifeBuoy, Car, Sparkles, Gauge, MonitorPlay, Flower2, Heart, Video, MousePointer2, Wind } from 'lucide-react';
+import { ArrowRight, Smartphone, ShieldCheck, FileText, LifeBuoy, Car, Sparkles, Gauge, MonitorPlay, Flower2, Heart, Video, MousePointer2, Wind, Globe } from 'lucide-react';
 import { PublicHeader, PublicFooter } from '../components/SiteChrome';
 import { apps } from '../data/apps';
 import { MARCA } from '../data/capacetes';
+import api from '../services/api';
+import { urlDoProjeto } from '../services/sites';
 
 export default function AppsList() {
+  const [projetos, setProjetos] = useState([]);
   useEffect(() => { document.title = 'Aplicativos · Studio Mythos'; }, []);
+  useEffect(() => {
+    api.get('/projetos').then((r) => setProjetos(r.data?.data || [])).catch(() => setProjetos([]));
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
@@ -104,6 +110,27 @@ export default function AppsList() {
               Abrir página modelo <ArrowRight size={16} />
             </span>
           </Link>
+          {/* Projetos publicados pelo painel (dinâmicos, sem mexer no código) */}
+          {projetos.map((p) => (
+            <a key={p.id} href={urlDoProjeto(p)} target="_blank" rel="noopener noreferrer"
+               className="group relative overflow-hidden rounded-2xl p-6 text-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+               style={{ background: `linear-gradient(135deg, ${p.cor || '#4F46E5'}, ${p.cor_secundaria || '#7C3AED'})` }}>
+              <span className="pointer-events-none absolute -right-8 -top-8 w-32 h-32 rounded-full blur-2xl opacity-30 bg-white" />
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg bg-white/15">
+                  <Globe size={26} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold leading-tight">{p.titulo}</h3>
+                  {p.subtitulo && <p className="text-xs text-white/70">{p.subtitulo}</p>}
+                </div>
+              </div>
+              {p.descricao && <p className="text-sm text-white/85 leading-relaxed mb-4 min-h-[40px]">{p.descricao}</p>}
+              <span className="inline-flex items-center gap-1.5 font-semibold text-sm group-hover:gap-2.5 transition-all text-white">
+                Abrir <ArrowRight size={16} />
+              </span>
+            </a>
+          ))}
           {apps.map((app) => (
             <Link key={app.slug} to={`/apps/${app.slug}`} className="group bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center gap-4 mb-4">
