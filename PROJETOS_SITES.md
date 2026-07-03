@@ -13,8 +13,8 @@ em vez de editar o código e rebuildar a cada projeto novo.
    - **Link externo**: só aponta o card para uma URL já existente.
 3. Marque **Publicar** e salve. O card aparece na Central de Aplicativos (`/apps`).
 
-O site fica acessível em `<HOST-DO-BACKEND>/sites/<slug>/`.
-Ex.: `https://studiomythos-backend.oehpg2.easypanel.host/sites/yoga-serena/`.
+O site fica acessível em `https://studiomythos.com.br/sites/<slug>/`
+(o nginx do frontend encaminha `/sites/` para o backend — ver infra abaixo).
 
 ## Arquitetura
 
@@ -42,12 +42,18 @@ No EasyPanel, no serviço do **backend**, adicione um **Volume/Mount** persisten
 
 Assim os uploads sobrevivem a redeploys.
 
-### 2. (Opcional) URL bonita `studiomythos.com.br/sites/...`
-Por padrão os sites abrem no host do backend (funciona de imediato).
-Para servir sob o domínio principal, adicione no proxy do EasyPanel do domínio
-`studiomythos.com.br` uma regra encaminhando o caminho `/sites/` para o serviço
-do backend (porta 3000). Feito isso, ajuste o link no frontend se quiser usar o
-domínio principal (hoje `services/sites.js` deriva do host da API).
+### 2. URL sob o domínio principal `studiomythos.com.br/sites/...`
+Isto já vem configurado no código: o `frontend/nginx.conf` encaminha `location /sites/`
+para o serviço interno `studiomythos_backend:3000`. Como os 3 serviços (frontend,
+backend, mysql) estão no MESMO projeto EasyPanel, eles se enxergam pelo nome interno
+`studiomythos_backend` — **não é preciso configurar nada na UI do EasyPanel** (a sua
+versão não tem roteamento por path, e não precisa).
+
+Basta **reimplantar o frontend** depois do deploy para o novo `nginx.conf` valer.
+Se algum dia o serviço de backend for renomeado, ajuste o `proxy_pass` no nginx.conf.
+
+> Em desenvolvimento, o `vite.config.js` faz o mesmo papel via `server.proxy`
+> (`/sites` → `http://localhost:3001`).
 
 ## Dependências adicionadas
 `backend`: `multer`, `adm-zip`.
