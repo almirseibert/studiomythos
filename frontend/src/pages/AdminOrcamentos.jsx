@@ -76,9 +76,9 @@ export default function AdminOrcamentos() {
           <div className="flex flex-col sm:flex-row gap-3 mb-5">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-              <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por nome, e-mail ou tipo…" className="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
+              <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por nome, e-mail ou tipo…" className="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
             </div>
-            <select value={filtro} onChange={(e) => setFiltro(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+            <select value={filtro} onChange={(e) => setFiltro(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
               <option>Todos</option>{STATUS.map((s) => <option key={s}>{s}</option>)}
             </select>
           </div>
@@ -138,7 +138,7 @@ function DetalheOrcamento({ dados, carregando, onClose, onStatus }) {
       <div className="bg-white w-full max-w-xl h-full overflow-y-auto custom-scrollbar shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between z-10 no-print">
           <div className="flex items-center gap-2">
-            <select value={c.status || 'Novo'} onChange={(e) => onStatus(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+            <select value={c.status || 'Novo'} onChange={(e) => onStatus(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
               {STATUS.map((s) => <option key={s}>{s}</option>)}
             </select>
             <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 bg-brand-gradient text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-voltage hover:opacity-95"><Printer size={16} /> Imprimir</button>

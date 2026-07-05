@@ -129,7 +129,7 @@ const projetoController = {
                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
                 [
                     slug, b.titulo, b.subtitulo || null, b.descricao || null,
-                    b.cor || '#4F46E5', b.cor_secundaria || '#7C3AED', b.icone || 'Globe',
+                    b.cor || '#0D9488', b.cor_secundaria || '#059669', b.icone || 'Globe',
                     tipo, tipo === 'link' ? b.url_externa : null, arquivoEntrada,
                     b.publicado === '0' || b.publicado === false ? 0 : 1,
                     Number(b.ordem) || 0,

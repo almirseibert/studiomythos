@@ -28,12 +28,12 @@ export default function Relatorios() {
       <Sidebar />
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scrollbar">
         <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shrink-0 sticky top-0 z-10">
-          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2"><BarChart3 className="text-indigo-600" /> Relatórios & Analítica</h1>
+          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2"><BarChart3 className="text-teal-600" /> Relatórios & Analítica</h1>
         </header>
 
         <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
           {isLoading || !dados ? (
-            <div className="flex justify-center items-center h-40 text-indigo-600"><Loader2 className="animate-spin" size={32} /></div>
+            <div className="flex justify-center items-center h-40 text-teal-600"><Loader2 className="animate-spin" size={32} /></div>
           ) : (
             <>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -61,7 +61,7 @@ export default function Relatorios() {
                             <span className="font-bold text-slate-700">{d.total}</span>
                           </div>
                           <div className="w-full bg-slate-100 h-7 rounded-md overflow-hidden">
-                            <div className={`h-full rounded-md ${STATUS_CORES[s]?.split(' ')[0] || 'bg-indigo-200'}`} style={{ width: `${Math.max(Math.round((d.total / max) * 100), 4)}%` }} />
+                            <div className={`h-full rounded-md ${STATUS_CORES[s]?.split(' ')[0] || 'bg-teal-200'}`} style={{ width: `${Math.max(Math.round((d.total / max) * 100), 4)}%` }} />
                           </div>
                         </div>
                       );

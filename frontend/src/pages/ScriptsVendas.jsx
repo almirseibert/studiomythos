@@ -193,7 +193,7 @@ const SCRIPTS = {
 // ── Fases do plano de contato ─────────────────────────────────────────────────
 const FASES = [
   {
-    num: 1, cor: 'bg-indigo-50 text-indigo-700',
+    num: 1, cor: 'bg-teal-50 text-teal-700',
     titulo: 'PREPARAÇÃO — Antes de ligar',
     sub: 'Pesquisa, lista e CRM configurado',
     itens: [
@@ -287,12 +287,12 @@ function ScriptLinha({ linha, i }) {
   const isVm = linha.type === 'vm';
   return (
     <div key={i}>
-      <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isVm ? 'text-violet-500' : 'text-cyan-500'}`}>
+      <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isVm ? 'text-emerald-500' : 'text-cyan-500'}`}>
         {isVm ? '🎙 Você (Vendedor)' : '👤 Cliente'}
       </p>
       <div className={`rounded-xl px-4 py-3 text-sm leading-relaxed border-l-4 ${
         isVm
-          ? 'bg-violet-50 border border-violet-200 border-l-violet-400 text-slate-700'
+          ? 'bg-emerald-50 border border-emerald-200 border-l-emerald-400 text-slate-700'
           : 'bg-cyan-50 border border-cyan-200 border-l-cyan-400 text-slate-700'
       }`}>
         {linha.text}
@@ -324,9 +324,9 @@ export default function ScriptsVendas() {
 
         {/* Header */}
         <header className="bg-white border-b border-slate-200 h-16 flex items-center px-6 shrink-0 sticky top-0 z-10">
-          <Phone size={20} className="text-violet-500 mr-3" />
+          <Phone size={20} className="text-emerald-500 mr-3" />
           <h1 className="text-xl font-bold text-slate-800">Scripts de Vendas</h1>
-          <span className="ml-3 text-xs font-semibold bg-violet-100 text-violet-700 px-2.5 py-0.5 rounded-full">Prospecção ativa</span>
+          <span className="ml-3 text-xs font-semibold bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full">Prospecção ativa</span>
         </header>
 
         <div className="p-6 max-w-7xl mx-auto w-full">
@@ -339,7 +339,7 @@ export default function ScriptsVendas() {
                 onClick={() => setTab(t.id)}
                 className={`px-4 py-2.5 text-sm font-semibold rounded-t-lg border-b-2 -mb-px transition-all ${
                   tab === t.id
-                    ? 'border-violet-500 text-violet-700 bg-violet-50'
+                    ? 'border-emerald-500 text-emerald-700 bg-emerald-50'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100'
                 }`}
               >
@@ -352,7 +352,7 @@ export default function ScriptsVendas() {
           {tab === 'empresa' && (
             <div className="space-y-5 dp-fade-up">
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-3">🏢 Sobre a Studio Mythos</h2>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-3">🏢 Sobre a Studio Mythos</h2>
                 <div className="space-y-1.5 text-sm text-slate-700">
                   <p>• Agência digital <strong>(Software House & Agência Digital)</strong> sediada em Lajeado (RS)</p>
                   <p>• Atende <strong>pequenas e médias empresas</strong> e startups que precisam de <strong>presença digital, sistemas e automação</strong></p>
@@ -364,20 +364,20 @@ export default function ScriptsVendas() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-3">🛠️ Portfólio de Serviços (12 linhas)</h2>
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-3">🛠️ Portfólio de Serviços (12 linhas)</h2>
                   <div className="flex flex-wrap gap-2">
                     {[
                       'Sites & Landing Pages','E-commerce','Apps Mobile','Web Apps & SaaS',
                       'CRM & Automação','Tráfego Pago','SEO & Conteúdo','Identidade Visual',
                       'IA Humanizada','Agendamento Online','Mídias Sociais','Consultoria Digital',
                     ].map(s => (
-                      <span key={s} className="bg-violet-50 text-violet-700 border border-violet-200 text-xs px-2.5 py-1 rounded-full font-medium">{s}</span>
+                      <span key={s} className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-2.5 py-1 rounded-full font-medium">{s}</span>
                     ))}
                   </div>
                 </div>
 
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-3">🎯 Diferenciais Competitivos</h2>
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-3">🎯 Diferenciais Competitivos</h2>
                   <ul className="space-y-1.5 text-sm text-slate-700">
                     {[
                       'Design exclusivo, sem templates genéricos',
@@ -393,7 +393,7 @@ export default function ScriptsVendas() {
                 </div>
 
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-3">🏆 Nichos Prioritários para Captação</h2>
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-3">🏆 Nichos Prioritários para Captação</h2>
                   <div className="flex flex-wrap gap-2">
                     {['Lava-rápidos','Clínicas & Saúde','Restaurantes','Comércio local',
                       'Logística & Frota','Imobiliárias','Academias','Contabilidade'].map(n => (
@@ -403,7 +403,7 @@ export default function ScriptsVendas() {
                 </div>
 
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-3">📱 Apps em Desenvolvimento (2026)</h2>
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-3">📱 Apps em Desenvolvimento (2026)</h2>
                   <ul className="space-y-2 text-sm text-slate-700">
                     <li className="flex gap-2"><span className="text-amber-500 flex-shrink-0">●</span><div><strong>Missão Cumprida</strong> — gestão de pedidos e entregas</div></li>
                     <li className="flex gap-2"><span className="text-cyan-500 flex-shrink-0">●</span><div><strong>Gestão de Frota</strong> — controle de frotas corporativas</div></li>
@@ -418,15 +418,15 @@ export default function ScriptsVendas() {
           {/* ── TAB 2: PLANO ── */}
           {tab === 'plano' && (
             <div className="space-y-5 dp-fade-up">
-              <div className="bg-gradient-to-r from-violet-50 to-indigo-50 border border-violet-200 rounded-2xl p-5">
-                <p className="font-bold text-violet-800 text-sm mb-1">🎯 Estratégia: Cold Call → Qualificação → Proposta → Fechamento</p>
-                <p className="text-sm text-violet-600">Ciclo de prospecção ativa por telefone com follow-up por WhatsApp. Meta: 5 reuniões/semana por vendedor.</p>
+              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-5">
+                <p className="font-bold text-emerald-800 text-sm mb-1">🎯 Estratégia: Cold Call → Qualificação → Proposta → Fechamento</p>
+                <p className="text-sm text-emerald-600">Ciclo de prospecção ativa por telefone com follow-up por WhatsApp. Meta: 5 reuniões/semana por vendedor.</p>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {KPIS.map(k => (
                   <div key={k.label} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 text-center">
-                    <div className="text-3xl font-extrabold text-violet-600">{k.valor}</div>
+                    <div className="text-3xl font-extrabold text-emerald-600">{k.valor}</div>
                     <div className="text-xs text-slate-500 mt-1">{k.label}</div>
                   </div>
                 ))}
@@ -452,7 +452,7 @@ export default function ScriptsVendas() {
                       <div className="px-5 pb-4 space-y-2 border-t border-slate-100 pt-3">
                         {f.itens.map((item, j) => (
                           <p key={j} className="text-sm text-slate-600 flex gap-2 leading-relaxed">
-                            <span className="text-violet-400 mt-0.5 flex-shrink-0">›</span>{item}
+                            <span className="text-emerald-400 mt-0.5 flex-shrink-0">›</span>{item}
                           </p>
                         ))}
                       </div>
@@ -475,12 +475,12 @@ export default function ScriptsVendas() {
                     onClick={() => { setNicho(n.id); setScriptTab('abertura'); }}
                     className={`rounded-xl border p-2.5 text-center transition-all ${
                       nicho === n.id
-                        ? 'border-violet-500 bg-violet-50 shadow-sm'
-                        : 'border-slate-200 bg-white hover:border-violet-300 hover:bg-violet-50/50'
+                        ? 'border-emerald-500 bg-emerald-50 shadow-sm'
+                        : 'border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50'
                     }`}
                   >
                     <div className="text-xl mb-1">{n.emoji}</div>
-                    <div className={`text-[11px] font-semibold leading-tight ${nicho === n.id ? 'text-violet-700' : 'text-slate-700'}`}>{n.nome}</div>
+                    <div className={`text-[11px] font-semibold leading-tight ${nicho === n.id ? 'text-emerald-700' : 'text-slate-700'}`}>{n.nome}</div>
                     <div className="text-[9px] text-slate-400 mt-0.5 hidden lg:block">{n.srv}</div>
                   </button>
                 ))}
@@ -496,7 +496,7 @@ export default function ScriptsVendas() {
                       onClick={() => setScriptTab(t.id)}
                       className={`px-5 py-3 text-xs font-semibold transition-all border-b-2 -mb-px ${
                         scriptTab === t.id
-                          ? 'border-violet-500 text-violet-700 bg-white'
+                          ? 'border-emerald-500 text-emerald-700 bg-white'
                           : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-white/60'
                       }`}
                     >

@@ -11,7 +11,7 @@ export default function Modal({ open, onClose, title, subtitle, icon, children, 
       >
         <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
           <div className="flex items-center gap-3">
-            {icon && <div className="p-2 bg-indigo-100 text-indigo-700 rounded-lg">{icon}</div>}
+            {icon && <div className="p-2 bg-teal-100 text-teal-700 rounded-lg">{icon}</div>}
             <div>
               <h2 className="font-bold text-slate-800">{title}</h2>
               {subtitle && <p className="text-xs text-slate-500">{subtitle}</p>}

@@ -14,6 +14,12 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  // Uploads (FormData): remove o Content-Type padrão (application/json) para o
+  // browser definir automaticamente multipart/form-data com o boundary correto.
+  // Sem isso o multer não consegue ler os campos nem o arquivo (erro 400).
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
   return config;
 });
 

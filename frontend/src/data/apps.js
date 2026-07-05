@@ -23,7 +23,7 @@ export const apps = [
     slug: 'missao-cumprida',
     nome: 'Missão Cumprida',
     inicial: 'M',
-    cor: '#4F46E5',
+    cor: '#0D9488',
     categoria: 'Produtividade / Logística',
     tagline: 'Gestão de pedidos e entregas na palma da mão.',
     descricao:

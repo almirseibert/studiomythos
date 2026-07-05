@@ -17,8 +17,8 @@ export const STATUS_CORES = {
   Novo: 'bg-slate-100 text-slate-700 border-slate-200',
   Contactado: 'bg-blue-100 text-blue-700 border-blue-200',
   Qualificado: 'bg-amber-100 text-amber-700 border-amber-200',
-  Proposta: 'bg-violet-100 text-violet-700 border-violet-200',
-  'Negociação': 'bg-indigo-100 text-indigo-700 border-indigo-200',
+  Proposta: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  'Negociação': 'bg-teal-100 text-teal-700 border-teal-200',
   Ganho: 'bg-emerald-100 text-emerald-700 border-emerald-200',
   Perdido: 'bg-red-100 text-red-700 border-red-200',
 };
@@ -143,7 +143,7 @@ export default function LeadDetail() {
   };
 
   if (loading) return (
-    <div className="flex h-screen bg-slate-50"><Sidebar /><div className="flex-1 flex items-center justify-center text-indigo-600"><Loader2 className="animate-spin" size={32} /></div></div>
+    <div className="flex h-screen bg-slate-50"><Sidebar /><div className="flex-1 flex items-center justify-center text-teal-600"><Loader2 className="animate-spin" size={32} /></div></div>
   );
   if (!lead) return (
     <div className="flex h-screen bg-slate-50"><Sidebar /><div className="flex-1 flex items-center justify-center text-slate-500">Lead não encontrado.</div></div>
@@ -164,20 +164,20 @@ export default function LeadDetail() {
 
         <div className="p-6 max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* SERVIÇOS EM EVIDÊNCIA — destaque para o vendedor escolher o que oferecer */}
-          <div className="lg:col-span-3 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl shadow-voltage p-5 text-white">
+          <div className="lg:col-span-3 bg-gradient-to-br from-teal-600 to-emerald-600 rounded-2xl shadow-voltage p-5 text-white">
             <div className="flex items-center gap-2 mb-1">
               <Sparkles size={20} />
               <h2 className="font-bold text-lg">Serviços para oferecer</h2>
             </div>
-            <p className="text-xs text-indigo-100 mb-4">Selecione o que faz sentido para {lead.empresa || 'este cliente'} — clique para marcar.</p>
+            <p className="text-xs text-teal-100 mb-4">Selecione o que faz sentido para {lead.empresa || 'este cliente'} — clique para marcar.</p>
             <div className="flex flex-wrap gap-2">
               {catalogo.map(s => {
                 const on = servicos.includes(s.id);
                 return (
                   <button key={s.id} onClick={() => toggleServico(s.id)}
-                    className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-all ${on ? 'bg-white text-indigo-700 border-white shadow-md scale-[1.02]' : 'bg-white/10 text-white border-white/30 hover:bg-white/20'}`}>
+                    className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-all ${on ? 'bg-white text-teal-700 border-white shadow-md scale-[1.02]' : 'bg-white/10 text-white border-white/30 hover:bg-white/20'}`}>
                     {on ? '✓ ' : ''}{s.label}
-                    <span className={`ml-1.5 text-[11px] ${on ? 'text-indigo-400' : 'text-indigo-200'}`}>{formatCurrency(s.valor_base)}</span>
+                    <span className={`ml-1.5 text-[11px] ${on ? 'text-teal-400' : 'text-teal-200'}`}>{formatCurrency(s.valor_base)}</span>
                   </button>
                 );
               })}
@@ -219,7 +219,7 @@ export default function LeadDetail() {
                   <div>
                     <p className="text-[11px] uppercase tracking-wide text-slate-400">Website</p>
                     {lead.possui_website
-                      ? <a href={lead.website_url} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline break-all">{lead.website_url || 'Possui site'}</a>
+                      ? <a href={lead.website_url} target="_blank" rel="noreferrer" className="text-teal-600 hover:underline break-all">{lead.website_url || 'Possui site'}</a>
                       : <p className="font-semibold text-emerald-600">Oportunidade — sem site</p>}
                   </div>
                 </li>
@@ -230,14 +230,14 @@ export default function LeadDetail() {
             {/* Informações da internet (OSM / Google Maps style) */}
             {Array.isArray(lead.detalhes_externos) && lead.detalhes_externos.length > 0 && (
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                <h2 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Database size={18} className="text-violet-600" /> Informações da internet</h2>
+                <h2 className="font-bold text-slate-800 mb-3 flex items-center gap-2"><Database size={18} className="text-emerald-600" /> Informações da internet</h2>
                 <ul className="space-y-2 text-sm">
                   {lead.detalhes_externos.map((d, i) => (
                     <li key={i} className="flex justify-between gap-3 border-b border-slate-50 pb-1.5 last:border-0">
                       <span className="text-slate-400 shrink-0">{d.label}</span>
                       {isUrl(d.valor) ? (
                         <a href={d.valor} target="_blank" rel="noreferrer"
-                          className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline text-right flex items-center gap-1">
+                          className="font-medium text-teal-600 hover:text-teal-800 hover:underline text-right flex items-center gap-1">
                           Abrir no mapa ↗
                         </a>
                       ) : (
@@ -253,7 +253,7 @@ export default function LeadDetail() {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               <h2 className="font-bold text-slate-800 mb-3">Vendedor responsável</h2>
               <select value={lead.vendedor_id || ''} onChange={e => atribuir(e.target.value)}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
                 <option value="">Sem atribuição</option>
                 {vendedores.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
               </select>
@@ -265,7 +265,7 @@ export default function LeadDetail() {
               <div className="flex flex-wrap gap-2">
                 {ESTAGIOS.map(s => (
                   <button key={s} onClick={() => mudarStatus(s)} disabled={s === lead.status}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${s === lead.status ? `${STATUS_CORES[s]} cursor-default` : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-700'}`}>
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${s === lead.status ? `${STATUS_CORES[s]} cursor-default` : 'bg-white text-slate-600 border-slate-200 hover:border-teal-300 hover:text-teal-700'}`}>
                     {s}
                   </button>
                 ))}
@@ -278,9 +278,9 @@ export default function LeadDetail() {
             {/* PROPOSTA & CONTATOS */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-5">
               <div className="flex items-center justify-between">
-                <h2 className="font-bold text-slate-800 flex items-center gap-2"><Package size={18} className="text-indigo-600" /> Proposta & Contatos</h2>
+                <h2 className="font-bold text-slate-800 flex items-center gap-2"><Package size={18} className="text-teal-600" /> Proposta & Contatos</h2>
                 <button onClick={salvarProposta} disabled={salvandoProposta}
-                  className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                  className="bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-lg text-sm flex items-center gap-2">
                   {salvandoProposta ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />} Salvar
                 </button>
               </div>
@@ -290,13 +290,13 @@ export default function LeadDetail() {
                   <label className="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">Produto / serviço oferecido</label>
                   <input value={produto} onChange={e => setProduto(e.target.value)}
                     placeholder="Ex: Site institucional + Google Meu Negócio"
-                    className="w-full mt-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
+                    className="w-full mt-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
                 </div>
                 <div>
                   <label className="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">Valor da proposta (R$)</label>
                   <input type="number" min="0" step="0.01" value={valorProposta} onChange={e => setValorProposta(e.target.value)}
                     placeholder="0,00"
-                    className="w-full mt-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
+                    className="w-full mt-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
                 </div>
               </div>
 
@@ -304,7 +304,7 @@ export default function LeadDetail() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-[11px] uppercase tracking-wide text-slate-400 font-semibold flex items-center gap-1.5"><Users size={13} /> Contatos do cliente</label>
-                  <button onClick={addContato} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"><Plus size={13} /> Adicionar</button>
+                  <button onClick={addContato} className="text-xs font-semibold text-teal-600 hover:text-teal-800 flex items-center gap-1"><Plus size={13} /> Adicionar</button>
                 </div>
                 {contatos.length === 0 ? (
                   <p className="text-xs text-slate-400 py-3 text-center border border-dashed border-slate-200 rounded-lg">Nenhum contato. Clique em “Adicionar”.</p>
@@ -313,10 +313,10 @@ export default function LeadDetail() {
                     {contatos.map((c, i) => (
                       <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
                         <input value={c.nome || ''} onChange={e => updateContato(i, 'nome', e.target.value)} placeholder="Nome"
-                          className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
+                          className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
                         <div className="relative flex items-center">
                           <input value={c.telefone || ''} onChange={e => updateContato(i, 'telefone', e.target.value)} placeholder="Telefone"
-                            className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 pr-8 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
+                            className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 pr-8 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
                           {phoneToWa(c.telefone) && (
                             <button
                               onClick={() => navigate(`/whatsapp?phone=${c.telefone.replace(/\D/g, '')}`)}
@@ -326,7 +326,7 @@ export default function LeadDetail() {
                           )}
                         </div>
                         <input value={c.email || ''} onChange={e => updateContato(i, 'email', e.target.value)} placeholder="E-mail"
-                          className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
+                          className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
                         <button onClick={() => removeContato(i)} className="text-slate-300 hover:text-red-500 p-1.5 justify-self-end"><Trash2 size={16} /></button>
                       </div>
                     ))}
@@ -340,23 +340,23 @@ export default function LeadDetail() {
               <div className="flex flex-wrap gap-1.5 mb-3">
                 {TIPOS_INTERACAO.map(({ id: t, icon: Icon }) => (
                   <button type="button" key={t} onClick={() => setTipo(t)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${tipo === t ? 'bg-brand-gradient text-white border-transparent' : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300'}`}>
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${tipo === t ? 'bg-brand-gradient text-white border-transparent' : 'bg-white text-slate-600 border-slate-200 hover:border-teal-300'}`}>
                     <Icon size={13} /> {t}
                   </button>
                 ))}
               </div>
               <textarea value={descricao} onChange={e => setDescricao(e.target.value)} rows={3}
                 placeholder="Descreva o que aconteceu nesta etapa (ex: liguei, cliente pediu proposta para sexta…)"
-                className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none" />
+                className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal-500 outline-none resize-none" />
               <div className="flex justify-end mt-3">
-                <button type="submit" disabled={salvando || !descricao.trim()} className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold px-5 py-2 rounded-lg text-sm flex items-center gap-2">
+                <button type="submit" disabled={salvando || !descricao.trim()} className="bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-semibold px-5 py-2 rounded-lg text-sm flex items-center gap-2">
                   {salvando ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />} Registrar
                 </button>
               </div>
             </form>
 
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-              <h2 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Clock size={18} className="text-indigo-600" /> Histórico da negociação</h2>
+              <h2 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Clock size={18} className="text-teal-600" /> Histórico da negociação</h2>
               {lead.interacoes.length === 0 ? (
                 <p className="text-sm text-slate-400 text-center py-6">Nenhuma interação ainda.</p>
               ) : (
@@ -365,14 +365,14 @@ export default function LeadDetail() {
                     const Icon = ICONE_TIPO[it.tipo] || StickyNote;
                     return (
                       <li key={it.id} className="ml-6">
-                        <span className="absolute -left-[13px] w-6 h-6 rounded-full bg-white border-2 border-indigo-200 flex items-center justify-center text-indigo-600">
+                        <span className="absolute -left-[13px] w-6 h-6 rounded-full bg-white border-2 border-teal-200 flex items-center justify-center text-teal-600">
                           <Icon size={12} />
                         </span>
                         <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                           <div className="flex items-center justify-between gap-2 mb-1">
                             <span className="text-xs font-bold text-slate-700 flex items-center gap-2">
                               {it.tipo}
-                              {it.mensagem_automatica ? <span className="text-[9px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded uppercase">Auto</span> : null}
+                              {it.mensagem_automatica ? <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded uppercase">Auto</span> : null}
                             </span>
                             <span className="text-[11px] text-slate-400" title={formatDateTime(it.data_criacao)}>{timeAgo(it.data_criacao)}</span>
                           </div>

@@ -19,7 +19,7 @@ const STATUS_BOT = {
 };
 
 const MODO_INFO = {
-  ia_ativa:     { label: 'IA Ativa',    cls: 'bg-violet-100 text-violet-700', icon: Bot },
+  ia_ativa:     { label: 'IA Ativa',    cls: 'bg-emerald-100 text-emerald-700', icon: Bot },
   humano_ativo: { label: 'Humano',      cls: 'bg-amber-100 text-amber-700',   icon: UserCheck },
   aguardando:   { label: 'Aguardando',  cls: 'bg-slate-100 text-slate-600',   icon: Clock },
 };
@@ -119,7 +119,7 @@ function ChatPanel({ conversa, onClose, onUpdate, botReady }) {
 
   const REMETENTE_STYLE = {
     cliente: 'bg-white border border-slate-200 text-slate-800 self-start rounded-tl-none',
-    ia:      'bg-violet-600 text-white self-end rounded-tr-none',
+    ia:      'bg-emerald-600 text-white self-end rounded-tr-none',
     humano:  'bg-emerald-600 text-white self-end rounded-tr-none',
   };
   const REMETENTE_LABEL = { cliente: 'Cliente', ia: '🤖 Mythos', humano: '👤 Vendedor' };
@@ -144,7 +144,7 @@ function ChatPanel({ conversa, onClose, onUpdate, botReady }) {
               <UserCheck size={13} /> Assumir
             </button>
           ) : modo === 'humano_ativo' ? (
-            <button onClick={devolver} className="text-xs bg-violet-600 hover:bg-violet-700 text-white font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+            <button onClick={devolver} className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
               <Bot size={13} /> Devolver à IA
             </button>
           ) : null}
@@ -153,7 +153,7 @@ function ChatPanel({ conversa, onClose, onUpdate, botReady }) {
 
       {/* Mensagens */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-slate-50 custom-scrollbar">
-        {loading && <div className="flex justify-center py-8"><Loader2 className="animate-spin text-violet-400" /></div>}
+        {loading && <div className="flex justify-center py-8"><Loader2 className="animate-spin text-emerald-400" /></div>}
         {mensagens.map((m) => (
           <div key={m.id} className={`flex flex-col max-w-[75%] ${m.remetente === 'cliente' ? 'items-start' : 'items-end ml-auto'}`}>
             <p className="text-[10px] text-slate-400 mb-0.5 px-1">{REMETENTE_LABEL[m.remetente]}</p>
@@ -188,7 +188,7 @@ function ChatPanel({ conversa, onClose, onUpdate, botReady }) {
         </form>
       ) : (
         <div className="flex items-center gap-2 px-4 py-3 border-t border-slate-200 bg-slate-50 text-sm text-slate-400 shrink-0">
-          <Bot size={16} className="text-violet-400" />
+          <Bot size={16} className="text-emerald-400" />
           A IA está atendendo este contato. Clique em "Assumir" para intervir.
         </div>
       )}
@@ -226,7 +226,7 @@ function AbaAgenda({ showToast }) {
           <button
             key={s}
             onClick={() => setFiltro(s)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${filtro === s ? 'bg-violet-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${filtro === s ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
           >
             {s || 'Todos'}
           </button>
@@ -237,7 +237,7 @@ function AbaAgenda({ showToast }) {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="animate-spin text-violet-400" /></div>
+        <div className="flex justify-center py-12"><Loader2 className="animate-spin text-emerald-400" /></div>
       ) : agendamentos.length === 0 ? (
         <div className="text-center py-12 text-slate-400">
           <Calendar size={40} className="mx-auto mb-3 opacity-30" />
@@ -421,7 +421,7 @@ export default function WhatsApp() {
         <header className="bg-white border-b border-slate-200 h-16 flex items-center px-6 shrink-0 sticky top-0 z-10 gap-3">
           <MessageSquare size={20} className="text-emerald-600" />
           <h1 className="text-xl font-bold text-slate-800">WhatsApp Bot</h1>
-          <span className="text-xs font-semibold bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">IA Gemini</span>
+          <span className="text-xs font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">IA Gemini</span>
           <div className="ml-auto">
             {botStatus && <BotBadge status={botStatus.status} />}
           </div>
@@ -437,7 +437,7 @@ export default function WhatsApp() {
               <button
                 key={tabItem.id}
                 onClick={() => setTab(tabItem.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition ${isActive ? 'border-violet-600 text-violet-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition ${isActive ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
               >
                 <Icon size={16} />
                 {tabItem.label}
@@ -472,7 +472,7 @@ export default function WhatsApp() {
                       <button
                         key={c.id}
                         onClick={() => setConversaSelecionada(c)}
-                        className={`w-full text-left px-3 py-3 transition ${isSelected ? 'bg-violet-50' : 'hover:bg-slate-50'}`}
+                        className={`w-full text-left px-3 py-3 transition ${isSelected ? 'bg-emerald-50' : 'hover:bg-slate-50'}`}
                       >
                         <div className="flex items-center justify-between mb-0.5 gap-2">
                           <p className="text-sm font-semibold text-slate-800 truncate">

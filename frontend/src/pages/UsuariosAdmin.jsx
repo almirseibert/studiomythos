@@ -56,8 +56,8 @@ export default function UsuariosAdmin() {
 
   const papelBadge = (user) => {
     if (user.email === 'almir.seibert@gmail.com') return <span className="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full border border-red-200">Super Admin</span>;
-    if (user.papel === 'admin') return <span className="bg-violet-100 text-violet-700 text-xs font-bold px-2.5 py-1 rounded-full border border-violet-200">Administrador</span>;
-    return <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full border border-indigo-200">Vendedor</span>;
+    if (user.papel === 'admin') return <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-200">Administrador</span>;
+    return <span className="bg-teal-100 text-teal-700 text-xs font-bold px-2.5 py-1 rounded-full border border-teal-200">Vendedor</span>;
   };
 
   return (
@@ -65,7 +65,7 @@ export default function UsuariosAdmin() {
       <Sidebar />
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scrollbar">
         <header className="bg-white border-b border-slate-200 h-16 flex items-center px-6 shrink-0 sticky top-0 z-10">
-          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2"><ShieldCheck className="text-indigo-600" /> Gestão de Acessos</h1>
+          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2"><ShieldCheck className="text-teal-600" /> Gestão de Acessos</h1>
         </header>
 
         <div className="p-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -81,26 +81,26 @@ export default function UsuariosAdmin() {
                 <label className="block text-sm font-medium text-slate-700 mb-1">Nome Completo</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                  <input type="text" value={novoUsuario.nome} onChange={e => setNovoUsuario({ ...novoUsuario, nome: e.target.value })} className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" required />
+                  <input type="text" value={novoUsuario.nome} onChange={e => setNovoUsuario({ ...novoUsuario, nome: e.target.value })} className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm" required />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">E-mail</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                  <input type="email" value={novoUsuario.email} onChange={e => setNovoUsuario({ ...novoUsuario, email: e.target.value })} className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" required />
+                  <input type="email" value={novoUsuario.email} onChange={e => setNovoUsuario({ ...novoUsuario, email: e.target.value })} className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm" required />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Palavra-passe</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                  <input type="password" value={novoUsuario.senha} onChange={e => setNovoUsuario({ ...novoUsuario, senha: e.target.value })} minLength="6" className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" required />
+                  <input type="password" value={novoUsuario.senha} onChange={e => setNovoUsuario({ ...novoUsuario, senha: e.target.value })} minLength="6" className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm" required />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Papel</label>
-                <select value={novoUsuario.papel} onChange={e => setNovoUsuario({ ...novoUsuario, papel: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                <select value={novoUsuario.papel} onChange={e => setNovoUsuario({ ...novoUsuario, papel: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
                   <option value="vendedor">Vendedor</option>
                   <option value="admin">Administrador</option>
                 </select>

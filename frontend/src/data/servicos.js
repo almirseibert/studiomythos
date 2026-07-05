@@ -26,7 +26,7 @@ export const servicos = [
     categoria: 'Presença digital',
     resumo: 'Sites institucionais e páginas de alta conversão, rápidas e com UI/UX impecável.',
     intro: 'Sua marca com uma presença digital profissional, rápida e feita para converter visitantes em clientes.',
-    cor: '#6366F1',
+    cor: '#16314F',
     paragrafos: [
       'Criamos sites institucionais e landing pages sob medida, com design moderno e foco total na experiência do usuário. Cada página é planejada para guiar o visitante até a ação que importa para o seu negócio — seja um contato, um orçamento ou uma compra.',
       'Tudo é construído com tecnologia atual, otimizado para carregar rápido, funcionar perfeitamente no celular e ranquear bem no Google. Você recebe um site fácil de atualizar e pronto para crescer junto com a sua empresa.',
@@ -56,7 +56,7 @@ export const servicos = [
     categoria: 'Vendas online',
     resumo: 'Lojas virtuais e plataformas B2B completas, com pagamentos e gestão de catálogo.',
     intro: 'Sua loja vendendo 24 horas por dia, com pagamentos, frete e gestão de produtos de ponta a ponta.',
-    cor: '#7C3AED',
+    cor: '#1F6B6B',
     paragrafos: [
       'Desenvolvemos lojas virtuais e plataformas B2B completas, com catálogo de produtos, carrinho, meios de pagamento e cálculo de frete integrados. Tudo pensado para o cliente comprar com facilidade e para você gerenciar tudo sem complicação.',
       'Integramos gateways de pagamento, transportadoras e ferramentas de marketing, e construímos uma experiência de compra fluida que reduz o abandono de carrinho e aumenta o ticket médio.',
@@ -86,7 +86,7 @@ export const servicos = [
     categoria: 'Mobile',
     resumo: 'Apps nativos e híbridos para Android e iOS, da ideia à publicação nas lojas.',
     intro: 'Do conceito à publicação na Google Play e App Store — seu aplicativo na palma da mão dos clientes.',
-    cor: '#4F46E5',
+    cor: '#2E4A3F',
     paragrafos: [
       'Projetamos e desenvolvemos aplicativos para Android e iOS, nativos ou híbridos, conduzindo todo o processo: ideia, design da experiência, desenvolvimento, testes e publicação nas lojas.',
       'Construímos apps estáveis e bonitos, com notificações, integrações e recursos sob medida para o seu negócio — e cuidamos também da parte chata: contas de desenvolvedor, políticas das lojas e atualizações.',
@@ -116,7 +116,7 @@ export const servicos = [
     categoria: 'Sistemas sob medida',
     resumo: 'Sistemas sob medida, escaláveis, para automatizar e digitalizar processos.',
     intro: 'Sistemas web e plataformas SaaS feitos sob medida para digitalizar e automatizar a sua operação.',
-    cor: '#6366F1',
+    cor: '#16314F',
     paragrafos: [
       'Desenvolvemos sistemas web e produtos SaaS do zero, desenhados em torno dos processos reais da sua empresa. Substituímos planilhas e controles manuais por uma plataforma única, segura e acessível de qualquer lugar.',
       'Arquitetura escalável, painéis, controle de acesso por perfil, relatórios e integrações com as ferramentas que você já usa — tudo construído para crescer sem retrabalho.',
@@ -146,7 +146,7 @@ export const servicos = [
     categoria: 'Vendas & atendimento',
     resumo: 'Implantação de CRM, funis de vendas e automações de atendimento para sua equipe vender mais.',
     intro: 'Organize o funil, automatize o atendimento e faça a sua equipe vender mais com previsibilidade.',
-    cor: '#7C3AED',
+    cor: '#1F6B6B',
     paragrafos: [
       'Implantamos e configuramos um CRM sob medida para o seu processo comercial: cadastro de leads, funil de vendas em etapas, histórico de cada negociação e indicadores claros de desempenho.',
       'Somamos a isso automações de atendimento — respostas, follow-ups e distribuição de leads — para que nenhuma oportunidade esfrie. O resultado é uma equipe mais produtiva e gestão com visão total do pipeline.',
@@ -176,7 +176,7 @@ export const servicos = [
     categoria: 'Aquisição',
     resumo: 'Campanhas no Google e Meta Ads focadas no seu retorno sobre investimento.',
     intro: 'Campanhas no Google e nas redes sociais desenhadas para trazer clientes com o melhor retorno possível.',
-    cor: '#4F46E5',
+    cor: '#2E4A3F',
     paragrafos: [
       'Criamos e gerenciamos campanhas de anúncios no Google Ads e Meta Ads (Facebook e Instagram), com segmentação precisa do público certo e foco em retorno sobre investimento (ROI).',
       'Acompanhamos métricas de perto, fazemos testes e otimizamos continuamente para reduzir o custo por resultado. Você recebe relatórios claros e sabe exatamente para onde está indo o seu investimento.',
@@ -206,7 +206,7 @@ export const servicos = [
     categoria: 'Crescimento orgânico',
     resumo: 'Otimização para busca e conteúdo estratégico para gerar autoridade e leads.',
     intro: 'Apareça no Google de forma orgânica e construa autoridade com conteúdo que atrai clientes.',
-    cor: '#6366F1',
+    cor: '#16314F',
     paragrafos: [
       'Otimizamos o seu site para os mecanismos de busca (SEO) — estrutura, performance, palavras-chave e experiência — para que ele seja encontrado por quem procura o que você oferece.',
       'Aliado a isso, produzimos conteúdo estratégico que educa o seu público, gera autoridade e atrai leads de forma contínua, sem depender só de anúncios pagos.',
@@ -236,7 +236,7 @@ export const servicos = [
     categoria: 'Branding',
     resumo: 'Logomarcas e identidade de marca modernas que posicionam o seu negócio.',
     intro: 'Uma marca memorável e coerente, do logotipo às cores, que posiciona o seu negócio no mercado.',
-    cor: '#7C3AED',
+    cor: '#1F6B6B',
     paragrafos: [
       'Criamos identidades visuais completas: logotipo, paleta de cores, tipografia e os elementos que dão personalidade à sua marca. Tudo desenhado para transmitir os valores certos e ser reconhecido com facilidade.',
       'Entregamos um manual de marca para que a sua comunicação seja consistente em todos os pontos de contato — site, redes sociais, materiais impressos e produtos.',
@@ -266,7 +266,7 @@ export const servicos = [
     categoria: 'Inteligência artificial',
     resumo: 'Agentes de inteligência artificial para atendimento e suporte 24 horas.',
     intro: 'Atendimento inteligente 24 horas: agentes de IA que conversam de forma natural e resolvem de verdade.',
-    cor: '#4F46E5',
+    cor: '#2E4A3F',
     paragrafos: [
       'Desenvolvemos agentes de inteligência artificial que atendem seus clientes 24 horas por dia, com linguagem natural e tom alinhado à sua marca. Eles respondem dúvidas, qualificam leads e agilizam o suporte.',
       'Treinamos a IA com o conhecimento do seu negócio e a integramos ao WhatsApp, site ou sistemas, com transferência para um atendente humano sempre que necessário.',
@@ -296,7 +296,7 @@ export const servicos = [
     categoria: 'Automação',
     resumo: 'Sistemas inteligentes de marcações e reservas automatizadas.',
     intro: 'Seus clientes agendam sozinhos, a qualquer hora, e a sua agenda se organiza no automático.',
-    cor: '#6366F1',
+    cor: '#16314F',
     paragrafos: [
       'Implantamos sistemas de agendamento e reservas online sob medida, em que o cliente escolhe data e horário disponíveis sem precisar ligar ou aguardar resposta. Sua agenda fica sempre organizada e atualizada.',
       'Adicionamos lembretes automáticos por WhatsApp/e-mail para reduzir faltas, além de confirmações e reagendamentos — tudo integrado à sua rotina.',
@@ -326,7 +326,7 @@ export const servicos = [
     categoria: 'Conteúdo & social',
     resumo: 'Gestão estratégica e produção de conteúdo para as suas redes.',
     intro: 'Redes sociais ativas e estratégicas, com conteúdo que fortalece a marca e aproxima o público.',
-    cor: '#7C3AED',
+    cor: '#1F6B6B',
     paragrafos: [
       'Cuidamos da gestão das suas redes sociais de ponta a ponta: planejamento de pautas, criação de conteúdo, design dos posts e calendário de publicações alinhado aos objetivos da sua marca.',
       'Acompanhamos o desempenho, interagimos com a audiência e ajustamos a estratégia para crescer seguidores que realmente importam — e transformá-los em clientes.',
@@ -356,7 +356,7 @@ export const servicos = [
     categoria: 'Estratégia',
     resumo: 'Mapeamento de processos e estratégia de transformação digital.',
     intro: 'Um plano claro para digitalizar o seu negócio e usar tecnologia com propósito e retorno.',
-    cor: '#4F46E5',
+    cor: '#2E4A3F',
     paragrafos: [
       'Analisamos os processos e a presença digital da sua empresa para identificar gargalos, oportunidades e prioridades. A partir daí, montamos um plano de transformação digital realista e orientado a resultado.',
       'Você ganha clareza sobre o que automatizar, quais ferramentas adotar e por onde começar — com acompanhamento para tirar o plano do papel sem desperdiçar investimento.',

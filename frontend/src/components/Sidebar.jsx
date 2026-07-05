@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, DollarSign, FileText,
-  Briefcase, Globe, LogOut, ShieldCheck, Radar, Inbox, Receipt, BookOpen, MessageSquare, LayoutTemplate
+  Briefcase, Globe, LogOut, ShieldCheck, Radar, Inbox, Receipt, MessageSquare, LayoutTemplate,
+  ChevronDown, Compass, BarChart3, Settings
 } from 'lucide-react';
 import { LogoMark } from './Logo';
 import { getUser, isAdmin, logout } from '../services/auth';
@@ -10,7 +11,7 @@ import { getUser, isAdmin, logout } from '../services/auth';
 const NavItem = ({ to, icon: Icon, label, active, accent }) => (
   <Link
     to={to}
-    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-medium ${
+    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm font-medium ${
       active
         ? accent
           ? 'bg-red-600/90 text-white shadow-lg'
@@ -18,8 +19,23 @@ const NavItem = ({ to, icon: Icon, label, active, accent }) => (
         : 'text-slate-400 hover:bg-white/5 hover:text-white'
     }`}
   >
-    <Icon size={19} /> {label}
+    <Icon size={18} /> {label}
   </Link>
+);
+
+// Grupo colapsável — reduz a extensão da sidebar agrupando os itens em menus/submenus.
+const Grupo = ({ icon: Icon, titulo, aberto, onToggle, children }) => (
+  <div>
+    <button
+      onClick={onToggle}
+      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+    >
+      <Icon size={17} />
+      <span className="text-[11px] font-bold tracking-widest uppercase flex-1 text-left">{titulo}</span>
+      <ChevronDown size={15} className={`transition-transform duration-200 ${aberto ? 'rotate-180' : ''}`} />
+    </button>
+    {aberto && <div className="mt-1 ml-3 pl-2 border-l border-white/10 space-y-1">{children}</div>}
+  </div>
 );
 
 export default function Sidebar() {
@@ -29,6 +45,18 @@ export default function Sidebar() {
   const admin = isAdmin();
   const is = (p) => pathname === p || pathname.startsWith(p + '/');
 
+  // Cada grupo abre por padrão se contém a rota ativa (mantém contexto ao navegar).
+  const emOperacao = ['/dashboard', '/prospeccao', '/crm', '/clientes'].some(is);
+  const emGestao = ['/financeiro', '/relatorios', '/usuarios'].some(is);
+  const emAdmin = ['/admin', '/whatsapp'].some(is);
+
+  const [abertos, setAbertos] = useState({
+    operacao: emOperacao || (!emGestao && !emAdmin),
+    gestao: emGestao,
+    admin: emAdmin,
+  });
+  const toggle = (k) => setAbertos((s) => ({ ...s, [k]: !s[k] }));
+
   const sair = () => { logout(); navigate('/login'); };
 
   return (
@@ -36,33 +64,33 @@ export default function Sidebar() {
       <div className="px-5 py-6 flex items-center gap-3 border-b border-white/5">
         <LogoMark size={38} />
         <div className="leading-none">
-          <span className="text-lg font-extrabold text-white tracking-tight">Studio<span className="text-violet-400"> Mythos</span></span>
+          <span className="text-lg font-extrabold text-white tracking-tight">Studio<span className="text-emerald-400"> Mythos</span></span>
           <p className="text-[9px] font-semibold tracking-[0.25em] text-slate-500 mt-1">PAINEL INTERNO</p>
         </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-        <p className="text-[10px] font-bold tracking-widest text-slate-600 px-3 pt-2 pb-1">OPERAÇÃO</p>
-        <NavItem to="/dashboard" icon={LayoutDashboard} label="Início" active={is('/dashboard')} />
-        <NavItem to="/prospeccao" icon={Radar} label="Prospecção no Mapa" active={is('/prospeccao')} />
-        <NavItem to="/scripts-vendas" icon={BookOpen} label="Scripts de Vendas" active={is('/scripts-vendas')} />
-        <NavItem to="/crm" icon={Briefcase} label="Funil de Vendas" active={is('/crm')} />
-        <NavItem to="/clientes" icon={Users} label="Leads & Clientes" active={is('/clientes')} />
+      <nav className="flex-1 px-3 py-4 space-y-2 overflow-y-auto custom-scrollbar">
+        <Grupo icon={Compass} titulo="Operação" aberto={abertos.operacao} onToggle={() => toggle('operacao')}>
+          <NavItem to="/dashboard" icon={LayoutDashboard} label="Início" active={is('/dashboard')} />
+          <NavItem to="/prospeccao" icon={Radar} label="Prospecção no Mapa" active={is('/prospeccao')} />
+          <NavItem to="/crm" icon={Briefcase} label="Funil de Vendas" active={is('/crm')} />
+          <NavItem to="/clientes" icon={Users} label="Leads & Clientes" active={is('/clientes')} />
+        </Grupo>
 
-        <p className="text-[10px] font-bold tracking-widest text-slate-600 px-3 pt-4 pb-1">GESTÃO</p>
-        <NavItem to="/financeiro" icon={DollarSign} label="Financeiro" active={is('/financeiro')} />
-        <NavItem to="/relatorios" icon={FileText} label="Relatórios" active={is('/relatorios')} />
-        {admin && <NavItem to="/usuarios" icon={ShieldCheck} label="Acessos" active={is('/usuarios')} accent />}
+        <Grupo icon={BarChart3} titulo="Gestão" aberto={abertos.gestao} onToggle={() => toggle('gestao')}>
+          <NavItem to="/financeiro" icon={DollarSign} label="Financeiro" active={is('/financeiro')} />
+          <NavItem to="/relatorios" icon={FileText} label="Relatórios" active={is('/relatorios')} />
+          {admin && <NavItem to="/usuarios" icon={ShieldCheck} label="Acessos" active={is('/usuarios')} accent />}
+        </Grupo>
 
         {admin && (
-          <>
-            <p className="text-[10px] font-bold tracking-widest text-slate-600 px-3 pt-4 pb-1">ADMINISTRAÇÃO</p>
+          <Grupo icon={Settings} titulo="Administração" aberto={abertos.admin} onToggle={() => toggle('admin')}>
             <NavItem to="/admin" icon={Inbox} label="Administração" active={pathname === '/admin'} />
             <NavItem to="/admin/curriculos" icon={FileText} label="Currículos" active={is('/admin/curriculos')} />
             <NavItem to="/admin/orcamentos" icon={Receipt} label="Orçamentos" active={is('/admin/orcamentos')} />
             <NavItem to="/admin/projetos" icon={LayoutTemplate} label="Projetos & Sites" active={is('/admin/projetos')} />
             <NavItem to="/whatsapp" icon={MessageSquare} label="WhatsApp Bot" active={is('/whatsapp')} />
-          </>
+          </Grupo>
         )}
       </nav>
 

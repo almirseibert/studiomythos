@@ -11,7 +11,7 @@ const APPS_SUPORTADOS = [
   { slug: 'check-list', nome: 'Check List' },
 ];
 
-const inp = 'w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition';
+const inp = 'w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none transition';
 const inpErr = 'w-full border border-red-300 rounded-lg px-3 py-2.5 text-sm bg-white focus:ring-2 focus:ring-red-400 outline-none transition';
 
 export default function ExclusaoConta() {

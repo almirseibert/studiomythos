@@ -26,7 +26,7 @@ export default function AppPage() {
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24">
           <Smartphone size={48} className="text-slate-300 mb-4" />
           <h1 className="text-2xl font-bold text-slate-800 mb-2">Aplicativo não encontrado</h1>
-          <Link to="/apps" className="text-indigo-600 font-medium hover:underline">Ver todos os aplicativos</Link>
+          <Link to="/apps" className="text-oxblood font-medium hover:underline">Ver todos os aplicativos</Link>
         </div>
         <PublicFooter />
       </div>
@@ -35,7 +35,7 @@ export default function AppPage() {
 
   const politica = app.politicaPrivacidade || politicaPadrao(app);
   const termos = app.termos || termosPadrao(app);
-  const grad = `linear-gradient(135deg, ${app.cor}, #7C3AED)`;
+  const grad = `linear-gradient(135deg, ${app.cor}, #0F4848)`;
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
@@ -62,7 +62,7 @@ export default function AppPage() {
         <div className="container mx-auto px-6 md:px-12">
           <nav className="flex gap-1 overflow-x-auto">
             {secoes.map((s) => (
-              <a key={s.id} href={`#${s.id}`} className="flex items-center gap-1.5 px-4 py-3 text-sm font-medium text-slate-600 hover:text-indigo-700 border-b-2 border-transparent hover:border-indigo-300 whitespace-nowrap transition-colors">
+              <a key={s.id} href={`#${s.id}`} className="flex items-center gap-1.5 px-4 py-3 text-sm font-medium text-slate-600 hover:text-oxblood border-b-2 border-transparent hover:border-oxblood/40 whitespace-nowrap transition-colors">
                 <s.icon size={15} /> {s.label}
               </a>
             ))}
@@ -108,7 +108,7 @@ export default function AppPage() {
           <div className="bg-white border border-slate-200 rounded-2xl p-6">
             <p className="text-slate-600 mb-4">Precisa de ajuda com o {app.nome}? Fale com a nossa equipe:</p>
             <div className="space-y-2">
-              <a href={`mailto:${app.suporte?.email || STUDIO.suporteEmail}`} className="flex items-center gap-2.5 text-slate-700 hover:text-indigo-700">
+              <a href={`mailto:${app.suporte?.email || STUDIO.suporteEmail}`} className="flex items-center gap-2.5 text-slate-700 hover:text-oxblood">
                 <Mail size={18} className="text-slate-400" /> {app.suporte?.email || STUDIO.suporteEmail}
               </a>
               {app.suporte?.telefone && (
@@ -127,7 +127,7 @@ export default function AppPage() {
 function SectionTitle({ icon: Icon, title }) {
   return (
     <h2 className="flex items-center gap-2.5 text-2xl font-bold text-slate-900 mb-4">
-      <span className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center"><Icon size={20} /></span>
+      <span className="w-9 h-9 rounded-lg bg-oxblood/10 text-oxblood flex items-center justify-center"><Icon size={20} /></span>
       {title}
     </h2>
   );

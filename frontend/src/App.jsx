@@ -67,7 +67,7 @@ export default function App() {
           <div className="h-screen flex flex-col items-center justify-center bg-obsidian text-white">
             <h1 className="text-5xl font-extrabold mb-3">404</h1>
             <p className="text-slate-400 mb-6">Página não encontrada.</p>
-            <Link to="/" className="text-violet-400 hover:underline font-medium">Voltar ao Início</Link>
+            <Link to="/" className="text-emerald-400 hover:underline font-medium">Voltar ao Início</Link>
           </div>
         } />
       </Routes>

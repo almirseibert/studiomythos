@@ -179,7 +179,7 @@ export default function Prospeccao() {
       <Sidebar />
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="bg-white border-b border-slate-200 h-16 flex items-center gap-3 px-6 shrink-0 z-10">
-          <Radar className="text-indigo-600" />
+          <Radar className="text-teal-600" />
           <div>
             <h1 className="text-xl font-bold text-slate-800 leading-tight">Prospecção no Mapa</h1>
             <p className="text-xs text-slate-500">Encontre empresas sem site e transforme em oportunidades</p>
@@ -198,7 +198,7 @@ export default function Prospeccao() {
                     value={busca} onChange={e => setBusca(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && geocodificar()}
                     placeholder="Cidade, bairro ou endereço"
-                    className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                    className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none"
                   />
                   <button onClick={geocodificar} disabled={buscandoLocal} className="bg-slate-900 hover:bg-obsidian text-white px-3 rounded-lg flex items-center justify-center">
                     {buscandoLocal ? <Loader2 className="animate-spin" size={16} /> : <Search size={16} />}
@@ -207,7 +207,7 @@ export default function Prospeccao() {
                 {lugares.length > 0 && (
                   <div className="mt-2 border border-slate-200 rounded-lg overflow-hidden divide-y divide-slate-100">
                     {lugares.map((l, i) => (
-                      <button key={i} onClick={() => escolherLugar(l)} className="w-full text-left px-3 py-2 text-xs text-slate-600 hover:bg-indigo-50 transition-colors">
+                      <button key={i} onClick={() => escolherLugar(l)} className="w-full text-left px-3 py-2 text-xs text-slate-600 hover:bg-teal-50 transition-colors">
                         {l.nome}
                       </button>
                     ))}
@@ -219,9 +219,9 @@ export default function Prospeccao() {
               {/* Raio */}
               <div>
                 <label className="text-xs font-bold uppercase tracking-wide text-slate-500 flex items-center justify-between mb-2">
-                  <span>Raio</span><span className="text-indigo-600 font-extrabold">{kmLabel}</span>
+                  <span>Raio</span><span className="text-teal-600 font-extrabold">{kmLabel}</span>
                 </label>
-                <input type="range" min="300" max="5000" step="100" value={raio} onChange={e => setRaio(Number(e.target.value))} className="w-full accent-indigo-600" />
+                <input type="range" min="300" max="5000" step="100" value={raio} onChange={e => setRaio(Number(e.target.value))} className="w-full accent-teal-600" />
               </div>
 
               {/* Categorias */}
@@ -232,7 +232,7 @@ export default function Prospeccao() {
                     const on = selCategorias.includes(cat.id);
                     return (
                       <button key={cat.id} onClick={() => toggleCategoria(cat.id)}
-                        className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${on ? 'bg-brand-gradient text-white border-transparent shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300'}`}>
+                        className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${on ? 'bg-brand-gradient text-white border-transparent shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-teal-300'}`}>
                         {cat.label}
                       </button>
                     );
@@ -250,7 +250,7 @@ export default function Prospeccao() {
                   </button>
                   <button onClick={() => googleDisponivel && setFonteGoogle(true)} disabled={!googleDisponivel}
                     title={googleDisponivel ? '' : 'Configure GOOGLE_MAPS_API_KEY no backend'}
-                    className={`px-2 py-1.5 rounded-lg text-xs font-semibold transition-all ${fonteGoogle ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'} ${!googleDisponivel ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                    className={`px-2 py-1.5 rounded-lg text-xs font-semibold transition-all ${fonteGoogle ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'} ${!googleDisponivel ? 'opacity-40 cursor-not-allowed' : ''}`}>
                     Google Maps
                   </button>
                 </div>
@@ -293,8 +293,8 @@ export default function Prospeccao() {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
               <ControleMapa center={center} onClickMapa={setCenter} />
-              <Circle center={[center.lat, center.lng]} radius={raio} pathOptions={{ color: '#4F46E5', fillColor: '#6366F1', fillOpacity: 0.08, weight: 1.5 }} />
-              <CircleMarker center={[center.lat, center.lng]} radius={6} pathOptions={{ color: '#fff', weight: 2, fillColor: '#7C3AED', fillOpacity: 1 }} />
+              <Circle center={[center.lat, center.lng]} radius={raio} pathOptions={{ color: '#0D9488', fillColor: '#10B981', fillOpacity: 0.08, weight: 1.5 }} />
+              <CircleMarker center={[center.lat, center.lng]} radius={6} pathOptions={{ color: '#fff', weight: 2, fillColor: '#059669', fillOpacity: 1 }} />
               {resultado?.empresas.map(e => (
                 <CircleMarker key={e.osm_ref} center={[e.latitude, e.longitude]} radius={7}
                   pathOptions={{
@@ -333,7 +333,7 @@ export default function Prospeccao() {
                   <button onClick={selecionarSemSite} className="flex-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg px-2 py-1.5 flex items-center justify-center gap-1 transition-colors">
                     <Sparkles size={13} /> Sem site
                   </button>
-                  <button onClick={selecionarComSite} className="flex-1 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg px-2 py-1.5 flex items-center justify-center gap-1 transition-colors">
+                  <button onClick={selecionarComSite} className="flex-1 text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg px-2 py-1.5 flex items-center justify-center gap-1 transition-colors">
                     <Globe size={13} /> Com site
                   </button>
                 </div>
@@ -345,8 +345,8 @@ export default function Prospeccao() {
                   const sel = selecionados.includes(e.osm_ref);
                   return (
                     <button key={e.osm_ref} onClick={() => toggleSel(e.osm_ref)}
-                      className={`w-full text-left px-3 py-3 flex gap-3 hover:bg-slate-50 transition-colors ${sel ? 'bg-indigo-50/60' : ''}`}>
-                      <div className="pt-0.5">{sel ? <CheckSquare className="text-indigo-600" size={18} /> : <Square className="text-slate-300" size={18} />}</div>
+                      className={`w-full text-left px-3 py-3 flex gap-3 hover:bg-slate-50 transition-colors ${sel ? 'bg-teal-50/60' : ''}`}>
+                      <div className="pt-0.5">{sel ? <CheckSquare className="text-teal-600" size={18} /> : <Square className="text-slate-300" size={18} />}</div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p className="font-semibold text-slate-800 text-sm truncate">{e.empresa}</p>
@@ -366,7 +366,7 @@ export default function Prospeccao() {
               </div>
 
               <div className="p-3 border-t border-slate-200 space-y-2 shrink-0 bg-slate-50">
-                <select value={vendedorId} onChange={e => setVendedorId(e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                <select value={vendedorId} onChange={e => setVendedorId(e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
                   <option value="">Atribuir a um vendedor (opcional)</option>
                   {vendedores.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
                 </select>

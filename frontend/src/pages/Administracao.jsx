@@ -33,13 +33,13 @@ export default function Administracao() {
       <Sidebar />
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scrollbar">
         <header className="bg-white border-b border-slate-200 h-16 flex items-center px-6 shrink-0 sticky top-0 z-10">
-          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2"><Inbox className="text-indigo-600" /> Administração</h1>
+          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2"><Inbox className="text-teal-600" /> Administração</h1>
         </header>
 
         <div className="p-6 max-w-5xl mx-auto w-full">
           <p className="text-slate-600 mb-6">Solicitações e cadastros recebidos pelo site.</p>
           {carregando ? (
-            <div className="flex justify-center py-20 text-indigo-600"><Loader2 className="animate-spin" size={32} /></div>
+            <div className="flex justify-center py-20 text-teal-600"><Loader2 className="animate-spin" size={32} /></div>
           ) : (
             <div className="grid sm:grid-cols-2 gap-6">
               <CardAdmin
@@ -48,7 +48,7 @@ export default function Administracao() {
                 titulo="Currículos / Candidaturas"
                 total={(contagens.curriculos || []).length}
                 novos={novosCurriculos}
-                cor="bg-indigo-50 text-indigo-600"
+                cor="bg-teal-50 text-teal-600"
               />
               <CardAdmin
                 to="/admin/orcamentos"
@@ -60,11 +60,11 @@ export default function Administracao() {
               />
               <Link to="/admin/projetos" className="group bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover:shadow-md hover:-translate-y-0.5 transition-all">
                 <div className="flex items-start justify-between">
-                  <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600"><LayoutTemplate size={26} /></div>
+                  <div className="p-3 rounded-xl bg-teal-50 text-teal-600"><LayoutTemplate size={26} /></div>
                 </div>
                 <h2 className="font-bold text-slate-800 text-lg mt-4">Projetos & Sites</h2>
                 <p className="text-sm text-slate-500 mt-1">Publique landing pages e sites (ZIP/HTML) e crie cards sem mexer no código.</p>
-                <span className="inline-flex items-center gap-1.5 text-indigo-600 font-semibold text-sm mt-3 group-hover:gap-2.5 transition-all">Gerenciar <ArrowRight size={16} /></span>
+                <span className="inline-flex items-center gap-1.5 text-teal-600 font-semibold text-sm mt-3 group-hover:gap-2.5 transition-all">Gerenciar <ArrowRight size={16} /></span>
               </Link>
             </div>
           )}
@@ -83,7 +83,7 @@ function CardAdmin({ to, icon: Icon, titulo, total, novos, cor }) {
       </div>
       <h2 className="font-bold text-slate-800 text-lg mt-4">{titulo}</h2>
       <p className="text-3xl font-extrabold text-slate-900 mt-1">{total}</p>
-      <span className="inline-flex items-center gap-1.5 text-indigo-600 font-semibold text-sm mt-3 group-hover:gap-2.5 transition-all">Abrir <ArrowRight size={16} /></span>
+      <span className="inline-flex items-center gap-1.5 text-teal-600 font-semibold text-sm mt-3 group-hover:gap-2.5 transition-all">Abrir <ArrowRight size={16} /></span>
     </Link>
   );
 }

@@ -51,10 +51,12 @@ export default {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'Menlo', 'monospace'],
       },
       boxShadow: {
-        voltage: '0 10px 30px -10px rgba(34, 211, 238, 0.4)',
+        // Glow suave teal/verde (substitui o cyan elétrico anterior).
+        voltage: '0 10px 30px -10px rgba(13, 148, 136, 0.35)',
       },
       backgroundImage: {
-        'brand-gradient': 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 55%, #6D28D9 100%)',
+        // Paleta suave verde/teal (substitui o indigo/violeta).
+        'brand-gradient': 'linear-gradient(135deg, #0D9488 0%, #10B981 55%, #059669 100%)',
       },
     },
   },

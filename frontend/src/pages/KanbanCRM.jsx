@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Users, Loader2, BookOpen, Tag, Info, GlobeLock, Clock, X } from 'lucide-react';
+import { Plus, Users, Loader2, BookOpen, Tag, Info, GlobeLock, Clock, X, ScrollText } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import api from '../services/api';
 import { useToast } from '../components/Toast';
@@ -19,7 +19,7 @@ const servicosReferencia = [
 
 const corColuna = {
   Novo: 'bg-slate-200', Contactado: 'bg-blue-300', Qualificado: 'bg-amber-300',
-  Proposta: 'bg-violet-300', 'Negociação': 'bg-indigo-300', Ganho: 'bg-emerald-400', Perdido: 'bg-red-300',
+  Proposta: 'bg-emerald-300', 'Negociação': 'bg-teal-300', Ganho: 'bg-emerald-400', Perdido: 'bg-red-300',
 };
 
 export default function KanbanCRM() {
@@ -96,6 +96,9 @@ export default function KanbanCRM() {
           <h1 className="text-xl font-bold text-slate-800">Funil de Vendas</h1>
           <div className="flex items-center gap-3">
             <span className="hidden sm:flex text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">{leads.length} leads · {formatCurrency(valorTotal)}</span>
+            <button onClick={() => navigate('/scripts-vendas')} className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm transition-colors">
+              <ScrollText size={18} /> Scripts de Vendas
+            </button>
             <button onClick={() => setIsCatalogoOpen(true)} className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm transition-colors">
               <BookOpen size={18} /> Tabela de Preços
             </button>
@@ -107,7 +110,7 @@ export default function KanbanCRM() {
 
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-6">
           {isLoading ? (
-            <div className="flex w-full h-full items-center justify-center text-indigo-500"><Loader2 size={32} className="animate-spin" /></div>
+            <div className="flex w-full h-full items-center justify-center text-teal-500"><Loader2 size={32} className="animate-spin" /></div>
           ) : (
             <div className="flex gap-4 h-full items-start min-w-max pb-4">
               {ESTAGIOS.map(fase => {
@@ -127,7 +130,7 @@ export default function KanbanCRM() {
                     <div className="p-2.5 overflow-y-auto flex-1 space-y-2.5 custom-scrollbar">
                       {doFase.map(lead => (
                         <div key={lead.id} draggable onDragStart={e => onDragStart(e, lead.id)} onClick={() => navigate(`/leads/${lead.id}`)}
-                          className="bg-white p-3 rounded-lg shadow-sm border border-slate-200 cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all">
+                          className="bg-white p-3 rounded-lg shadow-sm border border-slate-200 cursor-pointer hover:border-teal-300 hover:shadow-md transition-all">
                           <div className="flex items-start justify-between gap-2 mb-1.5">
                             <h4 className="font-bold text-slate-800 text-sm leading-tight">{lead.empresa || lead.nome}</h4>
                             {!lead.possui_website && <span title="Sem site" className="shrink-0 text-emerald-500"><GlobeLock size={15} /></span>}
@@ -160,30 +163,30 @@ export default function KanbanCRM() {
         <form onSubmit={salvar} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Título do Projeto</label>
-            <input required value={novo.titulo} onChange={e => setNovo({ ...novo, titulo: e.target.value })} placeholder="Ex: Website institucional" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
+            <input required value={novo.titulo} onChange={e => setNovo({ ...novo, titulo: e.target.value })} placeholder="Ex: Website institucional" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div><label className="block text-sm font-medium text-slate-700 mb-1">Empresa</label>
-              <input required value={novo.empresa} onChange={e => setNovo({ ...novo, empresa: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" /></div>
+              <input required value={novo.empresa} onChange={e => setNovo({ ...novo, empresa: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none" /></div>
             <div><label className="block text-sm font-medium text-slate-700 mb-1">Contato</label>
-              <input value={novo.nome} onChange={e => setNovo({ ...novo, nome: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" /></div>
+              <input value={novo.nome} onChange={e => setNovo({ ...novo, nome: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none" /></div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div><label className="block text-sm font-medium text-slate-700 mb-1">Telefone</label>
-              <input value={novo.telefone} onChange={e => setNovo({ ...novo, telefone: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" /></div>
+              <input value={novo.telefone} onChange={e => setNovo({ ...novo, telefone: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none" /></div>
             <div><label className="block text-sm font-medium text-slate-700 mb-1">Valor (R$)</label>
-              <input type="number" min="0" step="0.01" value={novo.valor_estimado} onChange={e => setNovo({ ...novo, valor_estimado: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" /></div>
+              <input type="number" min="0" step="0.01" value={novo.valor_estimado} onChange={e => setNovo({ ...novo, valor_estimado: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none" /></div>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Vendedor responsável</label>
-            <select value={novo.vendedor_id} onChange={e => setNovo({ ...novo, vendedor_id: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+            <select value={novo.vendedor_id} onChange={e => setNovo({ ...novo, vendedor_id: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
               <option value="">Sem atribuição</option>
               {vendedores.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
             </select>
           </div>
           <div className="pt-2 flex justify-end gap-3">
             <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm font-medium">Cancelar</button>
-            <button type="submit" className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold">Gravar</button>
+            <button type="submit" className="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-semibold">Gravar</button>
           </div>
         </form>
       </Modal>
@@ -203,15 +206,15 @@ export default function KanbanCRM() {
                   <p className="text-xs font-semibold text-slate-500 uppercase mb-2 flex items-center gap-1"><Tag size={12} /> Referência de Mercado</p>
                   <div className="flex justify-between items-end">
                     <div><p className="text-[10px] text-slate-400 uppercase">Mínimo</p><p className="font-medium text-slate-700">{formatCurrency(s.min)}</p></div>
-                    <div className="text-center bg-indigo-100 px-3 py-1.5 rounded-md"><p className="text-[10px] text-indigo-700 uppercase font-bold">Média</p><p className="font-bold text-indigo-900 text-lg">{formatCurrency(s.med)}</p></div>
+                    <div className="text-center bg-teal-100 px-3 py-1.5 rounded-md"><p className="text-[10px] text-teal-700 uppercase font-bold">Média</p><p className="font-bold text-teal-900 text-lg">{formatCurrency(s.med)}</p></div>
                     <div className="text-right"><p className="text-[10px] text-slate-400 uppercase">Máximo</p><p className="font-medium text-slate-700">{formatCurrency(s.max)}</p></div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-          <div className="mt-6 bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex gap-3 text-sm text-indigo-800">
-            <Info size={24} className="shrink-0 text-indigo-600" />
+          <div className="mt-6 bg-teal-50 border border-teal-100 rounded-xl p-4 flex gap-3 text-sm text-teal-800">
+            <Info size={24} className="shrink-0 text-teal-600" />
             <p><strong>Nota:</strong> valores médios de mercado para ancoragem. O preço final considera a complexidade do projeto, horas estimadas e integrações necessárias.</p>
           </div>
         </div>

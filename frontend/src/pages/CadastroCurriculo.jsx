@@ -148,7 +148,7 @@ export default function CadastroCurriculo() {
             </Campo>
             <Campo label="Possui veículo próprio?">
               <label className="flex items-center gap-2 h-[42px] text-sm text-slate-700">
-                <input type="checkbox" checked={f.possui_veiculo} onChange={(e) => set('possui_veiculo', e.target.checked)} className="w-4 h-4 accent-indigo-600" /> Sim, tenho veículo
+                <input type="checkbox" checked={f.possui_veiculo} onChange={(e) => set('possui_veiculo', e.target.checked)} className="w-4 h-4 accent-teal-600" /> Sim, tenho veículo
               </label>
             </Campo>
             <Campo label="LinkedIn"><input className={inp} value={f.linkedin} onChange={(e) => set('linkedin', e.target.value)} placeholder="URL do perfil" /></Campo>
@@ -224,7 +224,7 @@ export default function CadastroCurriculo() {
   );
 }
 
-const inp = 'w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none';
+const inp = 'w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none';
 
 function upd(setter, i, campo, valor) {
   setter((a) => a.map((it, k) => (k === i ? { ...it, [campo]: valor } : it)));
@@ -234,7 +234,7 @@ function Secao({ icon: Icon, titulo, acao, children }) {
   return (
     <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2"><Icon size={20} className="text-indigo-600" /> {titulo}</h2>
+        <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2"><Icon size={20} className="text-teal-600" /> {titulo}</h2>
         {acao}
       </div>
       {children}
@@ -257,7 +257,7 @@ function Campo({ label, full, children }) {
 
 function BotaoAdd({ onClick }) {
   return (
-    <button type="button" onClick={onClick} className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+    <button type="button" onClick={onClick} className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-600 hover:text-teal-800">
       <Plus size={16} /> Adicionar
     </button>
   );

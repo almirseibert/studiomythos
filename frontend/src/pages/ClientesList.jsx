@@ -53,11 +53,11 @@ export default function ClientesList() {
         <div className="p-4 border-b border-slate-200 bg-white shrink-0 flex flex-col lg:flex-row gap-3 lg:items-center">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Pesquisar empresa, contato, cidade…" className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50" />
+            <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Pesquisar empresa, contato, cidade…" className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none bg-slate-50" />
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-slate-400"><Filter size={16} /></span>
-            <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+            <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
               <option value="">Todos os estágios</option>
               {ESTAGIOS.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -70,7 +70,7 @@ export default function ClientesList() {
         <div className="flex-1 overflow-auto p-6 custom-scrollbar">
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
             {isLoading ? (
-              <div className="flex justify-center items-center h-40 text-indigo-600"><Loader2 className="animate-spin" size={32} /></div>
+              <div className="flex justify-center items-center h-40 text-teal-600"><Loader2 className="animate-spin" size={32} /></div>
             ) : (
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -85,7 +85,7 @@ export default function ClientesList() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filtrados.map(l => (
-                    <tr key={l.id} onClick={() => navigate(`/leads/${l.id}`)} className="hover:bg-indigo-50/40 transition-colors cursor-pointer">
+                    <tr key={l.id} onClick={() => navigate(`/leads/${l.id}`)} className="hover:bg-teal-50/40 transition-colors cursor-pointer">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-lg bg-brand-gradient flex items-center justify-center text-white font-bold uppercase text-sm">{(l.empresa || l.nome || '?').charAt(0)}</div>
@@ -107,7 +107,7 @@ export default function ClientesList() {
                     </tr>
                   ))}
                   {filtrados.length === 0 && (
-                    <tr><td colSpan="6" className="px-6 py-10 text-center text-slate-500">Nenhum lead encontrado. Use a <button onClick={() => navigate('/prospeccao')} className="text-indigo-600 font-medium hover:underline">Prospecção no Mapa</button> para captar.</td></tr>
+                    <tr><td colSpan="6" className="px-6 py-10 text-center text-slate-500">Nenhum lead encontrado. Use a <button onClick={() => navigate('/prospeccao')} className="text-teal-600 font-medium hover:underline">Prospecção no Mapa</button> para captar.</td></tr>
                   )}
                 </tbody>
               </table>

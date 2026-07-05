@@ -4,7 +4,7 @@ import { CheckCircle, AlertCircle, Info, X } from 'lucide-react';
 const ESTILOS = {
   success: { icon: CheckCircle, ring: 'border-emerald-200', accent: 'text-emerald-500' },
   error: { icon: AlertCircle, ring: 'border-red-200', accent: 'text-red-500' },
-  info: { icon: Info, ring: 'border-indigo-200', accent: 'text-indigo-500' },
+  info: { icon: Info, ring: 'border-teal-200', accent: 'text-teal-500' },
 };
 
 export function useToast() {
