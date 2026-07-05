@@ -10,7 +10,6 @@ export function PublicHeader() {
         <Link to="/" className="flex items-center"><Logo size={34} variant="dark" /></Link>
         <nav className="flex items-center gap-6">
           <Link to="/apps" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">Aplicativos</Link>
-          <Link to="/capacetes" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">Capacetes</Link>
           <a href="/#servicos" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">Serviços</a>
           <a href="/#contato" className="flex items-center gap-1.5 bg-obsidian text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-slate-800 transition-colors">
             Falar com especialista <ArrowRight size={15} />
@@ -36,7 +35,6 @@ export function PublicFooter() {
               <ul className="space-y-2 text-sm">
                 <li><a href="/#servicos" className="hover:text-white transition-colors">Serviços</a></li>
                 <li><Link to="/apps" className="hover:text-white transition-colors">Aplicativos</Link></li>
-                <li><Link to="/capacetes" className="hover:text-white transition-colors">Capacetes</Link></li>
                 <li><a href="/#contato" className="hover:text-white transition-colors">Contato</a></li>
               </ul>
             </div>
