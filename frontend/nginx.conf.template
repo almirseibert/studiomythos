@@ -1,0 +1,40 @@
+# nginx.conf.template
+# O entrypoint da imagem nginx roda envsubst nos arquivos de /etc/nginx/templates
+# e grava o resultado em /etc/nginx/conf.d/. Assim BACKEND_HOST e BACKEND_PORT
+# (padrões no Dockerfile) podem ser trocados por variável de ambiente no
+# EasyPanel, sem rebuild da imagem.
+server {
+    listen 80;
+    server_name localhost;
+
+    # DNS interno do Docker/EasyPanel.
+    # Importante: o nome do backend é resolvido via variável no proxy_pass abaixo.
+    # Com o nome escrito direto no proxy_pass, o nginx tenta resolvê-lo ao LER a
+    # config e aborta o boot com "host not found in upstream" enquanto o backend
+    # não estiver no ar — o site todo cai por causa de /sites/. Com a variável a
+    # resolução passa a ser por requisição: o nginx sempre sobe e, no pior caso,
+    # só /sites/ responde 502.
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    resolver_timeout 5s;
+
+    # Sites publicados pelo painel: encaminha /sites/ para o backend, que os
+    # serve de uploads/sites/<slug>/. Assim eles abrem sob o domínio principal
+    # (studiomythos.com.br/sites/<slug>/) sem depender de roteamento no EasyPanel.
+    # O backend é o serviço interno do mesmo projeto EasyPanel; a porta é a que
+    # o Express escuta (PORT, padrão 3000), não a 80.
+    location /sites/ {
+        set $backend "${BACKEND_HOST}:${BACKEND_PORT}";
+        proxy_pass http://$backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files $uri $uri/ /index.html;
+    }
+}

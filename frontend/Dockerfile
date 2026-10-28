@@ -24,8 +24,16 @@ RUN npm run build
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# DESCOMENTE ESTA LINHA e adicione-a ao seu Dockerfile:
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Template processado pelo entrypoint do nginx (envsubst) no boot do container,
+# virando /etc/nginx/conf.d/default.conf.
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+
+# Backend interno para onde /sites/ é encaminhado. No EasyPanel o host é
+# <projeto>_<servico> e a porta é a que o Express escuta (PORT no backend).
+# Dá para sobrescrever os dois como env var do serviço, sem rebuild.
+ENV BACKEND_HOST=studiomythos_backend \
+    BACKEND_PORT=3000 \
+    NGINX_ENVSUBST_FILTER=^BACKEND_
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
