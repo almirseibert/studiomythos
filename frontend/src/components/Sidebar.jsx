@@ -3,10 +3,21 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, DollarSign, FileText,
   Briefcase, Globe, LogOut, ShieldCheck, Radar, Inbox, Receipt, MessageSquare, LayoutTemplate,
-  ChevronDown, Compass, BarChart3, Settings
+  ChevronDown, Compass, BarChart3, Settings, Gavel, ExternalLink
 } from 'lucide-react';
 import { LogoMark } from './Logo';
 import { getUser, isAdmin, logout } from '../services/auth';
+
+// O Painel de Licitações é outro sistema, noutro domínio e noutro banco — só o
+// login é compartilhado: mesmos usuários, mesmo segredo de token. Por isso é um
+// link de verdade, e não uma rota do React Router.
+//
+// O token NÃO viaja na URL de propósito. Levar a sessão daqui para lá exigiria
+// pôr o JWT na query string, e query string entra em log de servidor, em
+// histórico de navegador e no cabeçalho Referer. Quem clica faz login no outro
+// painel com o mesmo e-mail e a mesma senha daqui.
+const URL_LICITACOES =
+  import.meta.env.VITE_LICITACOES_URL || 'https://licitacoes.studiomythos.com.br';
 
 const NavItem = ({ to, icon: Icon, label, active, accent }) => (
   <Link
@@ -21,6 +32,24 @@ const NavItem = ({ to, icon: Icon, label, active, accent }) => (
   >
     <Icon size={18} /> {label}
   </Link>
+);
+
+// Item que sai do painel. A seta indica isso antes do clique, e `noopener` é
+// obrigatório com `target="_blank"`: sem ele a página aberta ganha acesso a
+// `window.opener` e pode trocar o endereço desta aba por uma cópia da tela de
+// login.
+const NavItemExterno = ({ href, icon: Icon, label, descricao }) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    title={descricao}
+    className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white"
+  >
+    <Icon size={18} />
+    <span className="flex-1">{label}</span>
+    <ExternalLink size={13} className="opacity-50" />
+  </a>
 );
 
 // Grupo colapsável — reduz a extensão da sidebar agrupando os itens em menus/submenus.
@@ -75,6 +104,12 @@ export default function Sidebar() {
           <NavItem to="/prospeccao" icon={Radar} label="Prospecção no Mapa" active={is('/prospeccao')} />
           <NavItem to="/crm" icon={Briefcase} label="Funil de Vendas" active={is('/crm')} />
           <NavItem to="/clientes" icon={Users} label="Leads & Clientes" active={is('/clientes')} />
+          <NavItemExterno
+            href={URL_LICITACOES}
+            icon={Gavel}
+            label="Licitações"
+            descricao="Abre o Painel de Licitações em outra aba. O login é o mesmo deste painel."
+          />
         </Grupo>
 
         <Grupo icon={BarChart3} titulo="Gestão" aberto={abertos.gestao} onToggle={() => toggle('gestao')}>
